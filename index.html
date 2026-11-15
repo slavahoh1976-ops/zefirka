@@ -127,6 +127,13 @@ th{text-align:left;font-size:12px;color:var(--mute);font-weight:800;padding:6px 
 td{padding:8px;border-bottom:1px solid var(--line2);font-size:14px}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--pink-l)}
 .num{text-align:right;white-space:nowrap}
+.ir{display:grid;grid-template-columns:2.2fr 1fr .8fr 1fr 1.1fr auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line2)}
+.ir input,.ir select{padding:6px 8px}
+.ir .iname{font-weight:800}
+.ir .pk{text-align:right;line-height:1.1}.ir .pk small{display:block;font-size:11px;color:var(--mute)}
+.ir .imeta{grid-column:1/-1;font-size:11.5px;color:var(--mute);margin-top:-2px}
+.ir.ihead{font-size:12px;color:var(--mute);font-weight:800;border-bottom:1px solid var(--line);padding-top:0}
+.ir.ihead .num{text-align:right}
 .libwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .rc{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;cursor:pointer;background:var(--field)}
 .rc:hover{border-color:var(--pink)}
@@ -153,6 +160,8 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--pink-l)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;transition:.25s;z-index:60;opacity:0}
 .toast.on{transform:translateX(-50%);opacity:1}
 .search{max-width:300px}
+.phrow{display:flex;gap:6px}.phrow input{flex:1}.cbtn{padding:6px 10px;font-size:18px;flex-shrink:0}
+.ck{display:flex;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line2);font-weight:600;color:var(--ink);font-size:14px;flex-direction:row}.ck input{width:20px;height:20px;flex-shrink:0}
 .fab{display:none;position:fixed;right:16px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:31;width:58px;height:58px;border-radius:50%;border:0;background:var(--pink);color:#fff;font-size:30px;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(227,111,147,.45);cursor:pointer}
 body:not(.tab-cal) .fab{display:none!important}
 .lay{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;align-items:end;margin-bottom:8px}
@@ -207,6 +216,8 @@ header{padding-top:env(safe-area-inset-top)}
   .tier{grid-template-columns:1fr 1fr}.tier .tn{grid-column:1/-1;padding:0}
   .comp{grid-template-columns:1fr 1fr}.comphead{display:none}
   .ri{grid-template-columns:1fr 1fr}
+  .ir{grid-template-columns:1.1fr .8fr 1fr 1.1fr;gap:6px}.ir .iname{grid-column:1/4}.ir .x{grid-column:4;grid-row:1;justify-self:end}.ir.ihead{display:none}
+  .ir .pk{grid-column:4;grid-row:2}
 }
 
 /* ---------- themes ---------- */
@@ -399,7 +410,8 @@ header{padding-top:env(safe-area-inset-top)}
   <div class="libwrap">
     <div class="card">
       <div class="row" style="margin-bottom:8px"><h2 style="margin:0">🥚 Продукты</h2><span class="sp"></span><button class="primary mini" data-act="newIng">+ продукт</button></div>
-      <p class="mute" style="font-size:13px;margin:0 0 8px">Укажите упаковку и цену, как в чеке. Цену за грамм программа посчитает сама.</p>
+      <p class="mute" style="font-size:13px;margin:0 0 8px">Правьте прямо в таблице: фасовку и цену пишите как в чеке. После изменения себестоимость всех рецептов и калькулятора пересчитывается сама. «⋯» открывает подробности: вес 1 шт и удаление.</p>
+      <input id="ingSearch" placeholder="🔍 Найти продукт" style="margin-bottom:8px">
       <div id="ingList"></div>
     </div>
     <div class="card">
@@ -417,6 +429,7 @@ header{padding-top:env(safe-area-inset-top)}
       <h2 style="margin:0">👩 Клиенты</h2>
       <input class="search" id="cliSearch" placeholder="Поиск по имени или телефону">
       <span class="sp"></span>
+      <button class="btn" data-act="importContacts">📇 Из контактов</button>
       <button class="primary" data-act="newClient">+ клиент</button>
     </div>
     <div id="cliList"></div>
@@ -437,6 +450,7 @@ header{padding-top:env(safe-area-inset-top)}
 <div class="ov" id="cfm"><div class="md"><p id="cfmText" style="margin:0 0 14px;font-weight:700"></p><div class="btns"><span class="sp"></span><button class="ghost" id="cfmNo">Отмена</button><button class="danger" id="cfmYes">Удалить</button></div></div></div>
 <div class="toast" id="toast"></div>
 <datalist id="fillList"></datalist>
+<input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
 /* ---------- helpers ---------- */
@@ -475,22 +489,94 @@ const SOURCES=['','Instagram','Telegram','ВКонтакте','Авито','What
 /* ---------- storage ---------- */
 const COLS=['orders','clients','ingredients','recipes'];
 const DEF={rate:400,overhead:10,markup:30,portion:130,maxDay:3};
-const S={orders:[],clients:[],ingredients:[],recipes:[],settings:{...DEF}};
+const S={orders:[],clients:[],ingredients:[],recipes:[],settings:{...DEF},deleted:{}};
 let DB=null;const LSK='zefirka-v1';
-function lsLoad(){try{const j=JSON.parse(localStorage.getItem(LSK)||'null');if(j){for(const k of COLS)if(Array.isArray(j[k]))S[k]=j[k];if(j.settings)S.settings={...DEF,...j.settings}}}catch(e){}}
+function lsLoad(){try{const j=JSON.parse(localStorage.getItem(LSK)||'null');if(j){for(const k of COLS)if(Array.isArray(j[k]))S[k]=j[k];if(j.settings)S.settings={...DEF,...j.settings};if(j.deleted&&typeof j.deleted==='object')S.deleted=j.deleted}}catch(e){}}
 function lsSave(){if(DB)return;try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}}
+function localChanged(){lsSave();if(GH)ghSchedule(1500)}
 function dbErr(e){const c=e&&e.code;toast(c==='quota_exceeded'?'Хранилище заполнено, удалите старые записи':c==='invalid_argument'?'Нет прав на изменение: попросите доступ уровня «Contributor»':'Не получилось сохранить, попробуйте ещё раз')}
-async function put(col,obj){obj=clone(obj);const a=S[col];const i=a.findIndex(x=>x.id===obj.id);if(i>=0)a[i]=obj;else a.push(obj);renderAll();
-  if(DB){try{await DB.collection(col).doc(obj.id).set(obj)}catch(e){dbErr(e)}}else lsSave()}
-async function remove(col,id){S[col]=S[col].filter(x=>x.id!==id);renderAll();
-  if(DB){try{await DB.collection(col).doc(id).delete()}catch(e){dbErr(e)}}else lsSave()}
-async function saveSettings(){renderAll();if(DB){try{await DB.doc('settings/main').set(clone(S.settings))}catch(e){dbErr(e)}}else lsSave()}
-function setSync(m){$('#sync').textContent={local:'💾 сохраняется в этом браузере',loading:'⏳ подключаюсь к облаку…',cloud:'☁️ сохраняется автоматически',slow:'⚠️ облако пока недоступно',err:'⚠️ ошибка синхронизации'}[m]}
+async function put(col,obj){obj=clone(obj);obj._ts=Date.now();const a=S[col];const i=a.findIndex(x=>x.id===obj.id);if(i>=0)a[i]=obj;else a.push(obj);
+  if(S.deleted[col])delete S.deleted[col][obj.id];renderAll();
+  if(DB){try{await DB.collection(col).doc(obj.id).set(obj)}catch(e){dbErr(e)}}else localChanged()}
+async function remove(col,id){S[col]=S[col].filter(x=>x.id!==id);(S.deleted[col]=S.deleted[col]||{})[id]=Date.now();renderAll();
+  if(DB){try{await DB.collection(col).doc(id).delete()}catch(e){dbErr(e)}}else localChanged()}
+async function saveSettings(){S.settings._ts=Date.now();renderAll();if(DB){try{await DB.doc('settings/main').set(clone(S.settings))}catch(e){dbErr(e)}}else localChanged()}
+function setSync(m){$('#sync').textContent={local:'💾 только на этом устройстве',loading:'⏳ подключаюсь к облаку…',cloud:'☁️ сохраняется автоматически',slow:'⚠️ облако пока недоступно',err:'⚠️ ошибка синхронизации',
+  ghsync:'🔄 синхронизация…',gh:'✅ синхронизировано '+(ghLast?pad(ghLast.getHours())+':'+pad(ghLast.getMinutes()):''),gherr:'⚠️ нет связи, всё сохранено на устройстве',ghauth:'⚠️ ключ синхронизации не подошёл, проверьте ⚙️'}[m]||m;
+  $('#sync').dataset.m=m}
+
+/* ---------- синхронизация через закрытый репозиторий GitHub ---------- */
+const SYK='zefirka-sync';let GH=null;try{GH=JSON.parse(localStorage.getItem(SYK)||'null')}catch(e){}
+let ghSha=null,ghBusy=false,ghAgain=false,ghTimer=null,ghLast=null,ghState='';
+const b64e=str=>{const b=new TextEncoder().encode(str);let r='';for(let i=0;i<b.length;i+=0x8000)r+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(r)};
+const b64d=str=>new TextDecoder().decode(Uint8Array.from(atob(String(str).replace(/\s/g,'')),c=>c.charCodeAt(0)));
+const recTs=x=>x._ts||Date.parse(x.updatedAt||x.createdAt||'')||0;
+function pack(){return{app:'zefirka',v:2,settings:S.settings,deleted:S.deleted,...Object.fromEntries(COLS.map(c=>[c,S[c]]))}}
+function ghFetch(path,opt={}){return fetch('https://api.github.com/repos/'+encodeURIComponent(GH.owner)+'/'+encodeURIComponent(GH.repo)+path,{cache:'no-store',...opt,headers:{Authorization:'Bearer '+GH.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}})}
+function mergeRemote(remote){
+  const before=JSON.stringify(pack());
+  for(const c of COLS){
+    const dl={...((remote.deleted||{})[c]||{})};for(const[k,v]of Object.entries(S.deleted[c]||{}))dl[k]=Math.max(dl[k]||0,v);
+    const m=new Map();for(const x of (remote[c]||[]))if(x&&x.id)m.set(x.id,x);
+    for(const x of S[c]){const o=m.get(x.id);if(!o||recTs(x)>=recTs(o))m.set(x.id,x)}
+    for(const[id,x]of [...m])if(dl[id]&&dl[id]>=recTs(x))m.delete(id);
+    // старые отметки об удалении (больше 90 дней) убираем
+    const old=Date.now()-90*864e5;for(const k in dl)if(dl[k]<old)delete dl[k];
+    S[c]=[...m.values()];S.deleted[c]=dl;
+  }
+  if(remote.settings&&(remote.settings._ts||0)>(S.settings._ts||0))S.settings={...DEF,...remote.settings};
+  return JSON.stringify(pack())!==before;
+}
+function ghSchedule(ms){clearTimeout(ghTimer);ghTimer=setTimeout(ghSync,ms)}
+async function ghSync(){
+  if(!GH||DB)return;if(ghBusy){ghAgain=true;return}
+  ghBusy=true;if(ghState!=='gh')setSync('ghsync');
+  try{
+    for(let attempt=0;attempt<4;attempt++){
+      const r=await ghFetch('/contents/data.json?ref='+encodeURIComponent(GH.branch||'main')+'&_='+Date.now());
+      let remote={},remoteStr='';
+      if(r.status===200){const j=await r.json();ghSha=j.sha;remoteStr=b64d(j.content||'');try{remote=JSON.parse(remoteStr||'{}')}catch(_){remote={}}}
+      else if(r.status===404){ghSha=null}
+      else throw r.status;
+      if(mergeRemote(remote)){lsSave();renderAll()}
+      const out=JSON.stringify(pack());
+      if(out===remoteStr)break;
+      const w=await ghFetch('/contents/data.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Зефирка: обновление данных',content:b64e(out),branch:GH.branch||'main',...(ghSha?{sha:ghSha}:{})})});
+      if(w.status===200||w.status===201){const j=await w.json();ghSha=j.content&&j.content.sha;break}
+      if(w.status===409||w.status===422)continue; // файл успел измениться на другом устройстве — пробуем снова
+      throw w.status;
+    }
+    ghLast=new Date();ghState='gh';setSync('gh');
+  }catch(e){ghState=(e===401||e===403||e===404)?'ghauth':'gherr';setSync(ghState)}
+  finally{ghBusy=false;if(ghAgain){ghAgain=false;ghSchedule(400)}}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&GH)ghSync()});
+window.addEventListener('online',()=>{if(GH)ghSync()});
+setInterval(()=>{if(GH&&document.visibilityState==='visible')ghSync()},45000);
+async function ghConnect(owner,repo,token){
+  const prev=GH;GH={owner:owner.trim(),repo:repo.trim(),token:token.trim(),branch:'main'};
+  try{
+    const r=await ghFetch('');
+    if(r.status===401)throw'Ключ неверный или срок его действия истёк';
+    if(r.status===404||r.status===403)throw'Репозиторий не найден или ключу не дан доступ к нему';
+    if(!r.ok)throw'GitHub ответил ошибкой '+r.status;
+    const j=await r.json();
+    if(!j.private)throw'Репозиторий публичный! Данные клиентов увидят все. Сделайте его Private (Settings → Danger Zone → Change visibility)';
+    if(j.permissions&&!j.permissions.push)throw'Ключу не дано право записи (Contents: Read and write)';
+    GH.branch=j.default_branch||'main';
+    try{localStorage.setItem(SYK,JSON.stringify(GH))}catch(e){}
+    await ghSync();
+    return ghState==='gh'?null:'Подключено, но синхронизировать не вышло. Проверьте права ключа (Contents: Read and write)';
+  }catch(e){GH=prev;return typeof e==='string'?e:'Нет связи с GitHub'}
+}
+function ghDisconnect(){GH=null;try{localStorage.removeItem(SYK)}catch(e){}ghState='';setSync('local')}
+
 async function connect(){
+  if(GH&&!/claude|anthropic/.test(location.hostname)){ghSync();return}
   let n=0;while(!(window.claude&&window.claude.use)&&n<30){await new Promise(r=>setTimeout(r,100));n++}
-  if(!(window.claude&&window.claude.use)){setSync('local');return}
+  if(!(window.claude&&window.claude.use)){if(GH)ghSync();else setSync('local');return}
   let db=null;try{db=await window.claude.use('db')}catch(e){}
-  if(!db){setSync('local');return}
+  if(!db){if(GH)ghSync();else setSync('local');return}
   DB=db;setSync('loading');
   const pending=new Set([...COLS,'settings']);
   const timer=setTimeout(()=>{if(pending.size)setSync('slow')},10000);
@@ -581,7 +667,7 @@ function openOrder(o,preset){
   const v=k=>esc(o[k]??'');
   modal(`<h3>${isNew?'Новый заказ':'Заказ'}</h3>
   <form id="of" class="grid2" autocomplete="off">
-    <label>Телефон *<input name="phone" inputmode="tel" required placeholder="+7 900 000-00-00" value="${esc(o.clientPhone?fmtPhone(o.clientPhone):'')}"></label>
+    <label>Телефон *<span class="phrow"><input name="phone" inputmode="tel" required placeholder="+7 900 000-00-00" value="${esc(o.clientPhone?fmtPhone(o.clientPhone):'')}"><button type="button" class="ghost cbtn" data-pick="of" title="Выбрать из контактов">📇</button></span></label>
     <label>Имя клиента *<input name="clientName" required value="${v('clientName')}"></label>
     <div class="hint full" id="cHint"></div>
     <label>Дата выдачи *<input type="date" name="date" required value="${v('date')}"></label>
@@ -648,7 +734,7 @@ function openClient(c){
   modal(`<h3>${isNew?'Новый клиент':esc(c.name)}</h3>
   <form id="cf" class="grid2" autocomplete="off">
     <label>Имя *<input name="name" required value="${esc(c.name)}"></label>
-    <label>Телефон *<input name="phone" required inputmode="tel" value="${esc(fmtPhone(c.phone))}" ${isNew?'':'readonly'}></label>
+    <label>Телефон *<span class="phrow"><input name="phone" required inputmode="tel" value="${esc(fmtPhone(c.phone))}" ${isNew?'':'readonly'}>${isNew?'<button type="button" class="ghost cbtn" data-pick="cf" title="Выбрать из контактов">📇</button>':''}</span></label>
     <label>День рождения<input type="date" name="birthday" value="${esc(c.birthday||'')}"></label>
     <label>Откуда пришёл<select name="source">${SOURCES.map(s=>`<option${s===c.source?' selected':''}>${s}</option>`).join('')}</select></label>
     <label class="full">Заметки: аллергии, любимые начинки, дети, праздники<textarea name="notes" rows="3">${esc(c.notes||'')}</textarea></label>
@@ -672,11 +758,52 @@ function itemGrams(it){const i=ingById(it.ing);if(!i)return num(it.qty);return i
 function recYield(r){return num(r.yield)||sum(r.items||[],itemGrams)}
 function recCost(r){return sum(r.items||[],it=>{const i=ingById(it.ing);return i?num(it.qty)*unitPrice(i):0})}
 const recPerG=r=>{const y=recYield(r);return y>0?recCost(r)/y:0};
-function renderLib(){
-  const ings=[...S.ingredients].sort((a,b)=>a.name.localeCompare(b.name));
-  $('#ingList').innerHTML=ings.length?`<table><thead><tr><th>Продукт</th><th>Упаковка</th><th class="num">Цена за ${'кг/л/10 шт'}</th></tr></thead><tbody>`+ings.map(i=>`<tr class="click" data-ing="${i.id}"><td><b>${esc(i.name)}</b></td><td class="mute">${fx(num(i.packSize))} ${esc(i.unit)} — ${rub(num(i.packPrice))}</td><td class="num">${rub(unitPrice(i)*(i.unit==='шт'?10:1000))}${i.unit==='шт'?' /10 шт':i.unit==='мл'?' /л':' /кг'}</td></tr>`).join('')+'</tbody></table>':'<p class="empty-note">Добавьте продукты, которые покупаете</p>';
+const unitLbl=u=>u==='шт'?'10 шт':u==='мл'?'л':'кг';
+const perBig=i=>unitPrice(i)*(i.unit==='шт'?10:1000);
+function ingPk(i){const p=perBig(i);return p?`<b>${rub(p)}</b><small>за ${unitLbl(i.unit)}</small>`:'<small class="mute">—</small>'}
+function ingUsage(id){return S.recipes.filter(r=>(r.items||[]).some(x=>x.ing===id)).length}
+function renderIngTable(ings){
+  const box=$('#ingList');
+  // пока человек печатает в таблице — не перерисовываем строки, только цифры
+  if(box.contains(document.activeElement)&&box.querySelectorAll('.ir[data-iid]').length===ings.length&&!box.dataset.force){
+    ings.forEach(i=>{const pk=box.querySelector(`.ir[data-iid="${i.id}"] .pk`);if(pk)pk.innerHTML=ingPk(i)});return}
+  const q=($('#ingSearch')&&$('#ingSearch').value||'').toLowerCase().trim();
+  const list=q?ings.filter(i=>(i.name||'').toLowerCase().includes(q)):ings;
+  box.innerHTML=ings.length?`<div class="ir ihead"><span>Продукт</span><span>Фасовка</span><span>Ед.</span><span>Цена, ₽</span><span class="num">Выходит</span><span></span></div>`+
+    list.map(i=>{const u=ingUsage(i.id),d=i.priceTs?new Date(i.priceTs):null;return `<div class="ir" data-iid="${i.id}">
+      <input class="iname" data-f="name" value="${esc(i.name)}" placeholder="Название" aria-label="Название">
+      <input data-f="packSize" inputmode="decimal" value="${esc(i.packSize)}" placeholder="1000" aria-label="Фасовка">
+      <select data-f="unit" aria-label="Единица">${['г','мл','шт'].map(x=>`<option${x===i.unit?' selected':''}>${x}</option>`).join('')}</select>
+      <input data-f="packPrice" inputmode="decimal" value="${esc(i.packPrice)}" placeholder="0" aria-label="Цена упаковки">
+      <span class="pk">${ingPk(i)}</span>
+      <button class="x" data-ing="${i.id}" title="Подробнее / удалить">⋯</button>
+      <div class="imeta">${u?`в ${u} рецепт${u===1?'е':'ах'}`:'не используется'}${d?` · цена от ${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)}`:''}</div>
+    </div>`}).join('')+(q&&!list.length?'<p class="empty-note">Ничего не нашла</p>':'')
+    :'<p class="empty-note">Добавьте продукты, которые покупаете</p>';
+}
+function readIngRow(row){const i=ingById(row.dataset.iid);if(!i)return null;const o={...clone(i)};row.querySelectorAll('[data-f]').forEach(e=>o[e.dataset.f]=e.value);return o}
+$('#ingSearch').addEventListener('input',()=>renderLib());
+$('#ingList').addEventListener('input',e=>{const row=e.target.closest('.ir[data-iid]');if(!row)return;const o=readIngRow(row);if(o)row.querySelector('.pk').innerHTML=ingPk(o)});
+$('#ingList').addEventListener('change',e=>{const row=e.target.closest('.ir[data-iid]');if(!row)return;const o=readIngRow(row),old=ingById(row.dataset.iid);if(!o)return;
+  if(!o.name.trim()){toast('Название не может быть пустым');e.target.value=old.name;return}
+  if(o.packPrice!==old.packPrice||o.packSize!==old.packSize||o.unit!==old.unit)o.priceTs=Date.now();
+  saveIngInline(o);const u=ingUsage(o.id);toast(u?`Сохранено, пересчитано рецептов: ${u}`:'Сохранено')});
+// сохранение из таблицы без перерисовки самой таблицы (чтобы не сбивать ввод)
+async function saveIngInline(o){o=clone(o);o._ts=Date.now();const i=S.ingredients.findIndex(x=>x.id===o.id);if(i>=0)S.ingredients[i]=o;else S.ingredients.push(o);
+  const row=$('#ingList').querySelector(`.ir[data-iid="${o.id}"]`);if(row){row.querySelector('.pk').innerHTML=ingPk(o);const m=row.querySelector('.imeta');const u=ingUsage(o.id),d=o.priceTs?new Date(o.priceTs):null;if(m)m.textContent=(u?`в ${u} рецепт${u===1?'е':'ах'}`:'не используется')+(d?` · цена от ${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)}`:'')}
+  renderRecList();computeCalc();computeScale();
+  if(DB){try{await DB.collection('ingredients').doc(o.id).set(o)}catch(e){dbErr(e)}}else localChanged()}
+$('#ingList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();const all=[...$('#ingList').querySelectorAll('input')];const n=all[all.indexOf(e.target)+1];if(n)n.focus();else e.target.blur()}});
+function addIngRow(){const id=uid();put('ingredients',{id,name:'Новый продукт',unit:'г',packSize:'',packPrice:'',pieceG:'',priceTs:Date.now()});
+  if($('#ingSearch'))$('#ingSearch').value='';renderLib();const inp=document.querySelector(`.ir[data-iid="${id}"] .iname`);if(inp){inp.scrollIntoView({block:'center'});inp.focus();inp.select()}}
+function renderRecList(){
   const recs=[...S.recipes].sort((a,b)=>(a.type||'').localeCompare(b.type||'')||a.name.localeCompare(b.name));
   $('#recList').innerHTML=recs.length?recs.map(r=>`<div class="rc" data-rec="${r.id}"><div style="flex:1"><div class="nm">${esc(r.name)}</div><div class="mute" style="font-size:12.5px">${esc(REC_TYPES[r.type]||'')} · выход ${fx(recYield(r),0)} г${r.formD?' · форма Ø'+esc(r.formD):''}</div></div><div class="num"><b>${rub(recCost(r))}</b><div class="mute" style="font-size:12px">${rub(recPerG(r)*1000)} / кг</div></div></div>`).join(''):'<p class="empty-note">Рецептов пока нет</p>';
+}
+function renderLib(){
+  const ings=[...S.ingredients].sort((a,b)=>a.name.localeCompare(b.name));
+  renderIngTable(ings);
+  renderRecList();
   $('#libEmpty').innerHTML=(!S.ingredients.length&&!S.recipes.length)?`<div class="card" style="margin-bottom:14px;background:var(--mint-l)"><div class="row"><div style="flex:1"><b>С чего начать?</b> Можно загрузить примерный набор: 12 продуктов и 5 базовых рецептов (ванильный и шоколадный бисквит, крем-чиз, ганаш, пропитка). Цены примерные, их легко заменить на свои.</div><button class="primary" data-act="sample">Загрузить пример</button></div></div>`:'';
 }
 function openIng(i){
@@ -858,7 +985,19 @@ function openSettings(){
     <h3 style="font-family:Nunito;font-size:15px;margin-top:18px">💾 Резервная копия</h3>
     <p class="mute" style="font-size:13px;margin:0 0 8px">${DB?'Данные хранятся в облаке.':'Данные хранятся только в этом браузере на этом телефоне.'} Раз в неделю сохраняйте копию в файл, чтобы ничего не потерять при очистке браузера или смене телефона.</p>
     <div class="row"><button type="button" class="btn" data-act="export">Сохранить копию</button><label class="btn" style="flex-direction:row;color:var(--ink);font-size:15px;cursor:pointer">Загрузить из файла<input type="file" id="impF" accept=".json,application/json" style="display:none"></label></div>
-    <div id="expBox"></div>`);
+    <div id="expBox"></div>
+    ${DB?'':`<h3 style="font-family:var(--fb);font-size:15px;margin-top:18px">🔄 Синхронизация ПК и телефона</h3>
+    ${GH?`<div class="hint on">Подключено к <b>${esc(GH.owner)}/${esc(GH.repo)}</b>. ${ghLast?'Последняя синхронизация в '+pad(ghLast.getHours())+':'+pad(ghLast.getMinutes()):''}</div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn" id="ghNow">Синхронизировать сейчас</button><button type="button" class="danger" id="ghOff">Отключить на этом устройстве</button></div>`
+    :`<p class="mute" style="font-size:13px;margin:0 0 8px">Один раз на каждом устройстве: укажите закрытый репозиторий и ключ доступа. После этого заказы, клиенты и рецепты будут одинаковыми на ПК и телефоне.</p>
+      <div class="grid2"><label>Владелец (логин GitHub)<input id="ghO" value="slavahoh1976-ops" autocapitalize="off"></label><label>Закрытый репозиторий<input id="ghR" value="zefirka-data" autocapitalize="off"></label>
+      <label class="full">Ключ доступа (github_pat_…)<input id="ghT" type="password" autocomplete="off" autocapitalize="off" placeholder="вставьте ключ"></label></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="primary" id="ghOn">Подключить</button><span id="ghMsg" class="mute" style="font-size:13px"></span></div>`}`}`);
+  if($('#ghOn'))$('#ghOn').onclick=async()=>{const o=$('#ghO').value,r=$('#ghR').value,t=$('#ghT').value;if(!o||!r||!t){$('#ghMsg').textContent='Заполните все три поля';return}
+    $('#ghOn').disabled=true;$('#ghMsg').textContent='Проверяю…';const err=await ghConnect(o,r,t);$('#ghOn').disabled=false;
+    if(err){$('#ghMsg').textContent='⚠️ '+err;$('#ghMsg').style.color='#c4405f'}else{closeModal();toast('Синхронизация включена ✓')}};
+  if($('#ghNow'))$('#ghNow').onclick=async()=>{await ghSync();toast(ghState==='gh'?'Синхронизировано ✓':'Не получилось, проверьте интернет');closeModal()};
+  if($('#ghOff'))$('#ghOff').onclick=()=>{confirmBox('Отключить синхронизацию на этом устройстве? Данные останутся здесь и в репозитории.',()=>{ghDisconnect();closeModal();toast('Синхронизация отключена')});$('#cfmYes').textContent='Отключить'};
   $('#impF').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let j;try{j=JSON.parse(rd.result)}catch(_){return toast('Это не файл копии Зефирки')}
     if(!j||!Array.isArray(j.orders))return toast('Это не файл копии Зефирки');
     confirmBox(`Загрузить копию от ${j.savedAt?j.savedAt.slice(0,10):'?'}? Заказов: ${j.orders.length}, клиентов: ${(j.clients||[]).length}. Записи с одинаковыми ID заменятся.`,async()=>{for(const c of COLS)for(const x of (j[c]||[]))if(x&&x.id)await put(c,x);if(j.settings){S.settings={...DEF,...j.settings};saveSettings()}closeModal();toast('Копия загружена ✓')});
@@ -890,6 +1029,70 @@ const IDEAS=[
  [0,'🎁','Скидки постоянным','Автоматическая скидка начиная с N-го заказа или по сумме покупок.']];
 $('#ideas').innerHTML=IDEAS.map(([d,ic,t,p])=>`<div class="idea"><h4>${ic} ${t} <span class="badge ${d?'tag-done':'tag-plan'}">${d?'уже есть':'предлагаю'}</span></h4><p>${p}</p></div>`).join('');
 
+
+/* ---------- контакты телефона ---------- */
+const hasPicker=()=>'contacts' in navigator&&'select' in navigator.contacts;
+function qpDecode(v){try{return decodeURIComponent(v.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/gi,'%$1'))}catch(e){return v}}
+function parseVcf(text){
+  const out=[];const t=String(text).replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'').replace(/=\r?\n/g,'');
+  for(const blk of t.split(/BEGIN:VCARD/i).slice(1)){
+    let name='',n='';const tels=[];
+    for(const line of blk.split(/\r?\n/)){
+      const i=line.indexOf(':');if(i<0)continue;const key=line.slice(0,i).toUpperCase();let val=line.slice(i+1).trim();
+      if(/ENCODING=QUOTED-PRINTABLE/.test(key))val=qpDecode(val);
+      const k=key.split(';')[0].replace(/^ITEM\d+\./,'');
+      if(k==='FN')name=val.replace(/\\,/g,',');
+      else if(k==='N')n=val.split(';').filter(Boolean).reverse().join(' ').replace(/\\,/g,',');
+      else if(k==='TEL')tels.push({v:val,mob:/CELL|MOBILE|IPHONE/.test(key)});
+    }
+    const tel=(tels.find(x=>x.mob)||tels[0]||{}).v;
+    if(tel)out.push({name:(name||n||'').trim(),phone:normPhone(tel)});
+  }
+  return out.filter(c=>c.phone.length>=11);
+}
+function readVcfFiles(files){return Promise.all([...files].map(f=>f.text())).then(ts=>ts.flatMap(parseVcf))}
+// один контакт: в форму заказа или клиента
+async function pickOne(formId){
+  const f=$('#'+formId);if(!f)return;
+  const fill=c=>{f.phone.value=fmtPhone(c.phone);f.phone.dispatchEvent(new Event('input',{bubbles:true}));const nm=f.clientName||f.name;if(nm&&c.name&&!nm.value)nm.value=c.name;toast('Контакт добавлен: '+(c.name||fmtPhone(c.phone)))};
+  if(hasPicker()){
+    try{const r=await navigator.contacts.select(['name','tel'],{multiple:false});if(!r||!r.length)return;
+      const c=r[0],tel=(c.tel||[]).map(normPhone).find(x=>x.length>=11);if(!tel)return toast('У контакта нет номера телефона');
+      fill({name:(c.name||[])[0]||'',phone:tel})}catch(e){toast('Доступ к контактам не разрешён')}
+    return}
+  const inp=$('#vcfIn');inp.multiple=false;inp.value='';
+  inp.onchange=async()=>{const cs=await readVcfFiles(inp.files);if(cs[0])fill(cs[0]);else toast('В файле нет контактов с номером')};
+  toast('Выберите визитку контакта (.vcf)');inp.click();
+}
+// много контактов сразу: в базу клиентов
+async function importContacts(){
+  if(hasPicker()){
+    try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});if(!r||!r.length)return;
+      const cs=r.map(c=>({name:(c.name||[])[0]||'',phone:((c.tel||[]).map(normPhone).find(x=>x.length>=11))||''})).filter(c=>c.phone);
+      return showImport(cs)}catch(e){return toast('Доступ к контактам не разрешён')}
+  }
+  modal(`<h3>📇 Клиенты из контактов</h3>
+    <p style="margin:0 0 10px">На этом устройстве браузер не умеет сам открывать телефонную книгу${/iPhone|iPad/.test(navigator.userAgent)?' (на iPhone Safari это запрещает)':''}. Зато можно передать контакты файлом-визиткой:</p>
+    <ol style="margin:0 0 12px;padding-left:20px;font-size:14px;line-height:1.5">
+      <li>Откройте <b>Контакты</b>, выберите человека и нажмите <b>«Поделиться контактом»</b>.</li>
+      <li>Сохраните в <b>«Файлы»</b> или отправьте себе в Telegram «Избранное» и скачайте.</li>
+      <li>Нажмите кнопку ниже и выберите этот файл. Можно сразу несколько, и файл со многими контактами тоже подойдёт.</li></ol>
+    <p class="mute" style="font-size:13px;margin:0 0 12px">На Android в Chrome эта кнопка сразу открывает список контактов.</p>
+    <div class="btns"><span class="sp"></span><button class="ghost" data-act="close">Отмена</button><button class="primary" id="vcfGo">Выбрать файл .vcf</button></div>`);
+  $('#vcfGo').onclick=()=>{const inp=$('#vcfIn');inp.multiple=true;inp.value='';inp.onchange=async()=>{const cs=await readVcfFiles(inp.files);if(!cs.length)return toast('В файле нет контактов с номером');showImport(cs)};inp.click()};
+}
+function showImport(cs){
+  const seen=new Set(),list=cs.filter(c=>!seen.has(c.phone)&&seen.add(c.phone));
+  modal(`<h3>📇 Добавить клиентов (${list.length})</h3>
+    <p class="mute" style="font-size:13px;margin:0 0 6px">Снимите галочки с тех, кого добавлять не нужно. Уже известные клиенты помечены.</p>
+    <div id="impList">${list.map((c,k)=>{const ex=findClient(c.phone);return `<label class="ck"><input type="checkbox" data-k="${k}" ${ex?'':'checked'}><span style="flex:1"><b>${esc(c.name||'Без имени')}</b><br><span class="mute">${esc(fmtPhone(c.phone))}</span></span>${ex?'<span class="badge">уже есть</span>':''}</label>`}).join('')}</div>
+    <div class="btns"><span class="sp"></span><button class="ghost" data-act="close">Отмена</button><button class="primary" id="impGo">Добавить</button></div>`);
+  $('#impGo').onclick=async()=>{let n=0;for(const e of document.querySelectorAll('#impList input:checked')){const c=list[+e.dataset.k];const ex=findClient(c.phone);
+      if(ex){if(c.name&&!ex.name)await put('clients',{...ex,name:c.name})}else{await put('clients',{id:'c'+c.phone,phone:c.phone,name:c.name||'Без имени',source:'',createdAt:today()});n++}}
+    closeModal();showTab('cli');toast(n?`Добавлено клиентов: ${n}`:'Новых клиентов нет')};
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pick]');if(b){e.preventDefault();pickOne(b.dataset.pick)}});
+
 /* ---------- global clicks ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act],[data-day],[data-edit],[data-msg],[data-client],[data-ing],[data-rec]');if(!t)return;
@@ -900,7 +1103,8 @@ document.addEventListener('click',e=>{
   if(a==='todayBtn'){const d=new Date();cal.y=d.getFullYear();cal.m=d.getMonth();cal.sel=today();renderCal();return renderDay()}
   if(a==='newOrder')return openOrder(null,{date:cal.sel});
   if(a==='newClient')return openClient(null);
-  if(a==='newIng')return openIng(null);
+  if(a==='importContacts')return importContacts();
+  if(a==='newIng')return addIngRow();
   if(a==='newRec')return openRec(null);
   if(a==='sample')return loadSample();
   if(a==='settings')return openSettings();
