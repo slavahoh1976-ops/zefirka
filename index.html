@@ -32,6 +32,9 @@ nav button *{pointer-events:none}
 header{position:sticky;top:0;z-index:20;background:var(--hdr);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .hwrap{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px}
 .logo{display:flex;align-items:center;gap:10px}
+.logoimg{height:60px;width:auto;display:block}
+[data-theme=choco] .logoimg{background:#fbf4f0;border-radius:14px;padding:2px 4px}
+.logotxt h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .logo h1{font-family:var(--fh);font-size:28px;margin:0;color:var(--pink);letter-spacing:.5px}
 .logo small{display:block;color:var(--mute);font-size:12px;margin-top:-2px}
 .sync{margin-left:auto;font-size:12.5px;color:var(--mute);background:var(--card);border:1px solid var(--line);padding:5px 10px;border-radius:99px;white-space:nowrap}
@@ -194,7 +197,9 @@ header{padding-top:env(safe-area-inset-top)}
   main{padding:12px}
   .card{padding:14px;border-radius:16px}
   .hwrap{padding:10px 14px}
-  .logo h1{font-size:24px}.logo small{display:none}
+  .logotxt h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.logo h1{font-size:24px}.logo small{display:none}
+  .logoimg{height:46px}.logotxt{display:none}
   .sync{font-size:11px;padding:4px 8px;max-width:44vw;overflow:hidden;text-overflow:ellipsis}
   .hwrap{gap:8px}.gear{flex-shrink:0;width:36px;height:36px}
   nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;gap:0;box-shadow:0 -4px 18px rgba(160,90,110,.08)}
@@ -250,7 +255,8 @@ header{padding-top:env(safe-area-inset-top)}
   --bg:#f6f7f2;--card:#ffffff;--field:#fbfcf8;--hdr:rgba(246,247,242,.93);--line:#e3e8da;--line2:#edf0e6;
   --pink:#6f9a3d;--pink-d:#557a2b;--pink-l:#eaf2df;--cream:#f3f1e6;--ink:#253021;--mute:#7c8774;
   --sh:0 4px 18px rgba(60,80,40,.07);--bgimg:none;--r:14px}
-[data-theme=pist] .logo h1{letter-spacing:-.5px;font-weight:800}
+[data-theme=pist] .logotxt h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.logo h1{letter-spacing:-.5px;font-weight:800}
 [data-theme=pist] .card h2{font-weight:800;letter-spacing:-.2px}
 [data-theme=pist] .result{background:linear-gradient(135deg,#eaf2df,#f3f1e6)}
 [data-theme=pist] .logo svg path:first-of-type{stroke:#6f9a3d}[data-theme=pist] .logo svg circle{fill:#6f9a3d}
@@ -270,19 +276,62 @@ header{padding-top:env(safe-area-inset-top)}
   .ctab td:nth-child(2){grid-row:2;grid-column:1;color:var(--mute);font-size:13px}
 }
 .twrap{overflow-x:auto}
+
+/* --- фото --- */
+.phs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.ph{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;background:var(--cream);flex-shrink:0;border:1px solid var(--line)}
+.phs.small .ph{width:60px;height:60px}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.ph img.miss{opacity:0}
+.phx,.phstar{position:absolute;top:3px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:15px;line-height:26px;padding:0;cursor:pointer}
+.phx{right:3px}.phstar{left:3px;color:#ffd46b}.phstar.on{background:rgba(201,140,40,.9);color:#fff}
+.phadd{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--line);background:var(--field);color:var(--pink-d);font-size:24px;cursor:pointer;font-weight:800}
+.phadd span{font-size:11px;color:var(--mute)}
+.ph.pick{cursor:pointer;opacity:.75}.ph.pick.on{outline:3px solid var(--pink);opacity:1}
+.ph.pick img{cursor:pointer}
+.phhead{font-weight:800;font-size:13px;margin:8px 0 6px;color:var(--ink)}
+.ocph{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.ocph img{width:54px;height:54px;object-fit:cover;border-radius:10px;cursor:zoom-in;flex-shrink:0;background:var(--cream)}
+.pv{position:fixed;inset:0;background:rgba(20,10,15,.92);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
+.pv.on{display:flex}.pv img{max-width:100%;max-height:100%;border-radius:10px}
+.pvx{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:26px}
+/* --- что сделать --- */
+.todo{display:block;width:100%;text-align:left;border:0;border-left:4px solid var(--line);background:var(--field);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;font-size:14px;line-height:1.35}
+.todo.hot{border-left-color:var(--pink);background:var(--pink-l)}
+.todo.warn{border-left-color:var(--warn);background:var(--warn-l)}
+/* --- отчёт --- */
+.repwrap,.menuwrap{grid-template-columns:1fr 1fr}
+.exr{display:grid;grid-template-columns:56px 1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line2);font-size:14px}
+.hb{display:grid;grid-template-columns:140px 1fr 90px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:7px}
+.hbt{background:var(--cream);border-radius:6px;height:12px;overflow:hidden}.hbt i{display:block;height:100%;background:var(--pink);border-radius:6px}
+.hb b{text-align:right}
+.vb{display:flex;gap:8px;align-items:flex-end;height:170px;padding-top:6px}
+.vbc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%}
+.vbb{flex:1;width:100%;display:flex;gap:3px;align-items:flex-end;justify-content:center}
+.vbb i{width:42%;max-width:22px;border-radius:5px 5px 2px 2px;min-height:2px}
+.vbb i.r{background:var(--pink)}.vbb i.e{background:var(--warn)}
+.vbc span{font-size:12px;font-weight:700;color:var(--mute)}.vbc small{font-size:11px;font-weight:800}
+/* --- меню --- */
+.mi{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:8px;margin-bottom:8px;cursor:pointer;background:var(--field)}
+.mi:hover{border-color:var(--pink)}.mi.hidden{opacity:.55}
+.mith{width:58px;height:58px;border-radius:10px;overflow:hidden;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.mith img{width:100%;height:100%;object-fit:cover}
+.mi .nm{font-weight:800}
+@media (max-width:980px){.repwrap,.menuwrap{grid-template-columns:1fr}}
+@media (max-width:620px){.hb{grid-template-columns:110px 1fr 76px;font-size:12.5px}.ph{width:76px;height:76px}.exr{grid-template-columns:48px 1fr auto auto;font-size:13px}}
+
+.mtop{position:sticky;top:0;z-index:6;display:flex;align-items:center;background:var(--card);margin:-20px -20px 8px;padding:8px 10px;border-bottom:1px solid var(--line2);border-radius:22px 22px 0 0}
+.mback{border:0;background:transparent;color:var(--pink-d);font-weight:800;font-size:16px;padding:8px 10px;cursor:pointer;border-radius:10px}
+.mback:hover{background:var(--pink-l)}
+@media (max-width:620px){.mtop{top:0;margin:calc(-16px - env(safe-area-inset-top)) -16px 8px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;border-radius:0}.mback{font-size:17px}}
 </style>
 </head>
 <body>
 <header>
   <div class="hwrap">
     <div class="logo">
-      <svg width="42" height="42" viewBox="0 0 48 48" aria-hidden="true">
-        <ellipse cx="24" cy="38" rx="17" ry="5" fill="#fbd3de"/>
-        <path d="M10 30c-3-6 2-11 6-10-1-5 5-9 9-6 3-4 10-2 10 4 5 0 7 6 4 10z" fill="#fff" stroke="#e36f93" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M16 26c3 2 6 2 8 0M26 25c2 2 5 2 7 0" stroke="#f3a9bf" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <circle cx="31" cy="12" r="3" fill="#e36f93"/>
-      </svg>
-      <div><h1>Зефирка</h1><small>заказы · рецепты · клиенты</small></div>
+      <img src="logo.png" alt="Зефирка" class="logoimg" width="66" height="60">
+      <div class="logotxt"><h1>Зефирка</h1><small>заказы · рецепты · клиенты</small></div>
     </div>
     <span class="sync" id="sync">⏳ загрузка…</span>
     <button class="gear" data-act="settings" title="Настройки">⚙️</button>
@@ -293,7 +342,7 @@ header{padding-top:env(safe-area-inset-top)}
     <button data-tab="price"><span class="ic">🛒</span> Продукты</button>
     <button data-tab="lib"><span class="ic">📖</span> Рецепты</button>
     <button data-tab="cli"><span class="ic">👩</span> Клиенты</button>
-    <button data-tab="ideas"><span class="ic">💡</span> Идеи</button>
+    <button data-tab="rep"><span class="ic">📊</span> Отчёт</button>
   </nav>
   <button class="fab" data-act="newOrder" aria-label="Новый заказ">+</button>
 </header>
@@ -316,7 +365,11 @@ header{padding-top:env(safe-area-inset-top)}
       <div class="legend" id="legend"></div>
     </div>
     <div>
-      <div class="card">
+      <div class="card todocard">
+        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🔔 Что сделать</h2><span class="sp"></span><button class="ghost mini" data-act="weekIcs" title="Добавить заказы на 2 недели в календарь телефона с напоминаниями">📅 Всё в календарь</button></div>
+        <div id="todoList"></div>
+      </div>
+      <div class="card" style="margin-top:14px">
         <div class="row" style="margin-bottom:10px"><h2 id="dayTitle" style="margin:0"></h2><span class="sp"></span><button class="ghost mini" data-act="newOrder">+ на этот день</button></div>
         <div id="dayList"></div>
       </div>
@@ -438,11 +491,43 @@ header{padding-top:env(safe-area-inset-top)}
 </section>
 
 <section id="s-lib">
+  <div class="seg" id="libSeg"><button data-ls="rec" class="on">📖 Рецепты</button><button data-ls="menu">🍰 Меню для клиентов</button></div>
+  <div id="lsRec">
   <div id="libEmpty"></div>
   <div class="card">
     <div class="row" style="margin-bottom:8px"><h2 style="margin:0">📖 Рецепты-полуфабрикаты</h2><span class="sp"></span><button class="primary mini" data-act="newRec">+ рецепт</button></div>
     <p class="mute" style="font-size:13px;margin:0 0 8px">Бисквиты, кремы, начинки и пропитки по отдельности: из каких продуктов и сколько граммов. Из них собирается торт в калькуляторе. Цены продуктов берутся из вкладки «🛒 Продукты».</p>
     <div id="recList"></div>
+  </div>
+  </div>
+  <div id="lsMenu" style="display:none">
+    <div class="calwrap menuwrap">
+      <div class="card">
+        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🍰 Меню-витрина</h2><span class="sp"></span><button class="primary mini" data-act="newMenu">+ позиция</button></div>
+        <p class="mute" style="font-size:13px;margin:0 0 8px">Отдельная красивая страница с вашими тортами, ценами и фото. Её ссылку можно отправить клиенту вместо долгой переписки. Клиенты видят только меню, а заказы и контакты клиентов остаются закрытыми.</p>
+        <div class="row" style="margin-bottom:10px"><button class="btn" data-act="previewMenu">👁 Предпросмотр</button><button class="primary" id="pubBtn" data-act="publishMenu">🌐 Опубликовать</button></div>
+        <div id="menuLink" class="hint on" style="margin-bottom:10px"></div>
+        <div id="menuList"></div>
+      </div>
+      <div>
+        <div class="card">
+          <h2>📞 Контакты на странице меню</h2>
+          <div class="grid2" id="shopForm">
+            <label>Название<input id="sh_title"></label><label>Подзаголовок<input id="sh_tagline"></label>
+            <label>Телефон<input id="sh_phone" inputmode="tel" placeholder="+7 900 000-00-00"></label>
+            <label class="ck" style="align-self:end"><input type="checkbox" id="sh_wa"> Кнопка WhatsApp</label>
+            <label>Telegram (ник без @)<input id="sh_tg" autocapitalize="off"></label><label>Instagram (ник)<input id="sh_ig" autocapitalize="off"></label>
+            <label>ВКонтакте (ссылка или ник)<input id="sh_vk" autocapitalize="off"></label><label>Город / район<input id="sh_city"></label>
+            <label class="full">Условия заказа<textarea id="sh_note" rows="2"></textarea></label>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h2>📸 Портфолио</h2>
+          <p class="mute" style="font-size:13px;margin:0 0 8px">Фото готовых тортов со звёздочкой ★ из заказов. На странице меню они покажутся в разделе «Наши работы».</p>
+          <div class="phs" id="portGrid"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -461,7 +546,33 @@ header{padding-top:env(safe-area-inset-top)}
 </section>
 
 <!-- IDEAS -->
+<section id="s-rep">
+  <div class="calhead" style="margin-bottom:12px"><button class="nav-b" data-act="repPrev">‹</button><h2 id="repTitle" style="margin:0;font-family:var(--fh)"></h2><button class="nav-b" data-act="repNext">›</button></div>
+  <div class="stats" id="repStats"></div>
+  <div id="repHint" class="mute" style="font-size:13px;margin:-4px 0 12px"></div>
+  <div class="calwrap repwrap">
+    <div class="card">
+      <h2>💸 Расходы</h2>
+      <form id="exf" class="grid2" autocomplete="off">
+        <label>Дата<input type="date" id="exDate" required></label>
+        <label>Статья<select id="exCat"></select></label>
+        <label id="exAmtL">Сумма, ₽<input id="exAmt" inputmode="decimal" required placeholder="0"></label>
+        <label>Комментарий<input id="exNote" placeholder="Ашан, такси к клиенту…"></label>
+        <div class="full row"><span id="exKmHint" class="mute" style="font-size:12.5px"></span><span class="sp"></span><button class="primary">+ Добавить расход</button></div>
+      </form>
+      <div id="expList" style="margin-top:10px"></div>
+    </div>
+    <div>
+      <div class="card"><h2>📈 Последние 6 месяцев</h2><div id="repBars"></div></div>
+      <div class="card" style="margin-top:14px"><h2>🧾 Расходы по статьям</h2><div id="expCats"></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>🏆 Самые выгодные начинки <span class="mute" style="font-size:12.5px;font-weight:600">за всё время</span></h2><div id="topFill"></div></div>
+  <div class="card" style="margin-top:14px"><div class="row"><div style="flex:1"><b>💡 Идеи для развития</b><div class="mute" style="font-size:13px">Что уже есть в Зефирке и что можно добавить дальше</div></div><button class="btn" data-tab-go="ideas">Открыть</button></div></div>
+</section>
+
 <section id="s-ideas">
+  <button class="btn" data-tab-go="rep" style="margin-bottom:12px">‹ Назад к отчёту</button>
   <div class="card" style="margin-bottom:14px">
     <h2>💡 Что умеют программы для кондитеров и что можно добавить</h2>
     <p style="margin:0" class="mute">Я посмотрела на CakeBoss, BakeSmart, ProTort/ProBiznes и складские системы вроде iiko и МойСклад. У всех повторяется одно ядро: заказы с календарём, база клиентов и себестоимость по многоуровневым техкартам. Зелёные карточки уже есть в Зефирке, розовые я предлагаю сделать дальше.</p>
@@ -473,11 +584,12 @@ header{padding-top:env(safe-area-inset-top)}
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
 <div class="ov" id="cfm"><div class="md"><p id="cfmText" style="margin:0 0 14px;font-weight:700"></p><div class="btns"><span class="sp"></span><button class="ghost" id="cfmNo">Отмена</button><button class="danger" id="cfmYes">Удалить</button></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="pv" id="pv"></div>
 <datalist id="fillList"></datalist>
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='1.5 · 16.11.2026';
+const APP_VERSION='2.0 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -512,9 +624,9 @@ const DENS={biscuit:{t:'Бисквитный с кремом',v:0.9},mousse:{t:'
 const SOURCES=['','Instagram','Telegram','ВКонтакте','Авито','WhatsApp','Сарафанное радио','Другое'];
 
 /* ---------- storage ---------- */
-const COLS=['orders','clients','ingredients','recipes'];
-const DEF={rate:400,overhead:10,markup:30,portion:130,maxDay:3};
-const S={orders:[],clients:[],ingredients:[],recipes:[],settings:{...DEF},deleted:{}};
+const COLS=['orders','clients','ingredients','recipes','expenses','menu'];
+const DEF={rate:400,overhead:10,markup:30,portion:130,maxDay:3,kmRate:10};
+const S={orders:[],clients:[],ingredients:[],recipes:[],expenses:[],menu:[],settings:{...DEF},deleted:{}};
 let DB=null;const LSK='zefirka-v1';
 function lsLoad(){try{const j=JSON.parse(localStorage.getItem(LSK)||'null');if(j){for(const k of COLS)if(Array.isArray(j[k]))S[k]=j[k];if(j.settings)S.settings={...DEF,...j.settings};if(j.deleted&&typeof j.deleted==='object')S.deleted=j.deleted}}catch(e){}}
 function lsSave(){if(DB)return;try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}}
@@ -571,7 +683,7 @@ async function ghSync(){
       if(w.status===409||w.status===422)continue; // файл успел измениться на другом устройстве — пробуем снова
       throw w.status;
     }
-    ghLast=new Date();ghState='gh';setSync('gh');
+    ghLast=new Date();ghState='gh';setSync('gh');phFlush();
   }catch(e){ghState=(e===401||e===403||e===404)?'ghauth':'gherr';setSync(ghState)}
   finally{ghBusy=false;if(ghAgain){ghAgain=false;ghSchedule(400)}}
 }
@@ -614,14 +726,33 @@ async function connect(){
 }
 
 /* ---------- tabs ---------- */
-$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;showTab(b.dataset.tab)});
-function showTab(t){document.body.className='tab-'+t;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id==='s-'+t));window.scrollTo({top:0})}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;showTab(b.dataset.tab,true)});
+let curTab='cal',ignorePop=0;
+function showTab(t,push){if(push&&t!==curTab)try{history.pushState({tab:t},'')}catch(e){}curTab=t;document.body.className='tab-'+t;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id==='s-'+t));window.scrollTo({top:0})}
 
 /* ---------- modal ---------- */
-function modal(html){$('#md').innerHTML=html;$('#ov').classList.add('on')}
-function closeModal(){$('#ov').classList.remove('on');$('#md').innerHTML=''}
+function modal(html){
+  const wasOpen=$('#ov').classList.contains('on');
+  $('#md').innerHTML='<div class="mtop"><button type="button" class="mback" data-act="close" aria-label="Назад">‹ Назад</button></div>'+html;
+  $('#ov').classList.add('on');$('#ov').scrollTop=0;setTimeout(()=>hydrate($('#md')),0);
+  if(!wasOpen)try{history.pushState({modal:1,tab:curTab},'')}catch(e){}
+}
+function closeModal(fromPop){
+  if(!$('#ov').classList.contains('on'))return;
+  $('#ov').classList.remove('on');$('#md').innerHTML='';
+  if(!fromPop&&history.state&&history.state.modal){ignorePop++;history.back()}
+}
+function closePv(fromPop){const pv=$('#pv');if(!pv.classList.contains('on'))return;pv.classList.remove('on');pv.innerHTML='';if(!fromPop&&history.state&&history.state.pv){ignorePop++;history.back()}}
+try{history.replaceState({tab:'cal'},'')}catch(e){}
+window.addEventListener('popstate',e=>{
+  if(ignorePop>0){ignorePop--;return}
+  if($('#pv').classList.contains('on'))return closePv(true);
+  if($('#cfm').classList.contains('on')){$('#cfm').classList.remove('on')}
+  if($('#ov').classList.contains('on'))return closeModal(true);
+  const t=(e.state&&e.state.tab)||'cal';if(t!==curTab)showTab(t,false);
+});
 $('#ov').addEventListener('mousedown',e=>{if(e.target.id==='ov')closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#cfm').classList.contains('on'))$('#cfm').classList.remove('on');else closeModal()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#pv').classList.contains('on'))closePv();else if($('#cfm').classList.contains('on'))$('#cfm').classList.remove('on');else closeModal()}});
 function exportData(){
   const data={app:'zefirka',version:1,savedAt:new Date().toISOString(),settings:S.settings,...Object.fromEntries(COLS.map(c=>[c,S[c]]))};
   const txt=JSON.stringify(data,null,1),name='zefirka-'+today()+'.json';
@@ -667,7 +798,8 @@ function orderCard(o){
     ${o.notes?`<div class="ln mute">📝 ${esc(o.notes)}</div>`:''}
     <div class="ln">${o.delivery==='delivery'?'🚗 Доставка'+(o.address?': '+esc(o.address):''):'🏠 Самовывоз'}</div>
     ${num(o.price)?`<div class="money">Цена <b>${rub(num(o.price))}</b> · предоплата ${rub(num(o.deposit))} · ${rest>0?`<span class="rest">остаток ${rub(rest)}</span>`:'<span class="paid">оплачено</span>'}</div>`:''}
-    <div class="oc-btns"><button class="btn mini" data-edit="${o.id}">✏️ Изменить</button><button class="btn mini" data-msg="${o.id}">💬 Текст клиенту</button></div>
+    ${(o.photos||[]).length?`<div class="ocph">${o.photos.slice(0,5).map(p=>`<img data-ph="${p.id}" data-view="${p.id}" alt="">`).join('')}</div>`:''}
+    <div class="oc-btns"><button class="btn mini" data-edit="${o.id}">✏️ Изменить</button><button class="btn mini" data-ics="${o.id}">📅 В календарь</button><button class="btn mini" data-msg="${o.id}">💬 Текст клиенту</button></div>
   </div>`;
 }
 function renderDay(){
@@ -708,13 +840,14 @@ function openOrder(o,preset){
     <label>Получение<select name="delivery"><option value="pickup">Самовывоз</option><option value="delivery"${o.delivery==='delivery'?' selected':''}>Доставка</option></select></label>
     <label>Адрес доставки<input name="address" value="${v('address')}"></label>
     <label class="full">Заметки (надпись на торте, аллергии…)<textarea name="notes" rows="2">${v('notes')}</textarea></label>
+    <div class="full" id="ophotos"></div>
     <div class="full btns">${!isNew?'<button type="button" class="danger" id="oDel">Удалить</button>':''}<span class="sp"></span><button type="button" class="ghost" data-act="close">Отмена</button><button class="primary">Сохранить</button></div>
   </form>`);
   const f=$('#of'),hint=$('#cHint');
   const check=()=>{const p=normPhone(f.phone.value),c=p.length>=11?findClient(p):null;
     if(c){const os=clientOrders(p);hint.innerHTML=`⭐ Постоянный клиент: <b>${esc(c.name)}</b>, заказов ${os.length}, на сумму ${rub(sum(os.filter(x=>x.status!=='cancel'),x=>num(x.price)))}`+(c.notes?`<br>📝 ${esc(c.notes)}`:'');hint.classList.add('on');if(!f.clientName.value)f.clientName.value=c.name}
     else if(p.length>=11){hint.textContent='🆕 Новый клиент, сохраню в базу при сохранении заказа';hint.classList.add('on')}else hint.classList.remove('on')};
-  f.phone.addEventListener('input',check);check();
+  f.phone.addEventListener('input',check);check();bindOrderPhotos(o);
   if($('#oDel'))$('#oDel').onclick=()=>confirmBox('Удалить этот заказ?',()=>{remove('orders',o.id);closeModal();toast('Заказ удалён')});
   f.addEventListener('submit',e=>{e.preventDefault();
     const p=normPhone(f.phone.value);if(p.length<11){toast('Проверьте номер телефона');f.phone.focus();return}
@@ -1050,6 +1183,7 @@ function openSettings(){
     <label>Накладные, % от продуктов<input name="overhead" inputmode="decimal" value="${esc(s.overhead)}"></label>
     <label>Наценка, %<input name="markup" inputmode="decimal" value="${esc(s.markup)}"></label>
     <label>Порция на гостя, г<input name="portion" inputmode="decimal" value="${esc(s.portion)}"></label>
+    <label class="full">Пробег: сколько ₽ стоит 1 км (бензин, амортизация)<input name="kmRate" inputmode="decimal" value="${esc(s.kmRate??10)}"></label>
     <label class="full">Сколько заказов в день вы успеваете (после этого день помечается занятым)<input name="maxDay" inputmode="numeric" value="${esc(s.maxDay)}"></label>
     <div class="full btns"><span class="sp"></span><button type="button" class="ghost" data-act="close">Отмена</button><button class="primary">Сохранить</button></div></form>
     <h3 style="font-family:Nunito;font-size:15px;margin-top:18px">💾 Резервная копия</h3>
@@ -1089,15 +1223,15 @@ const IDEAS=[
  [1,'🎂','Дни рождения клиентов','Напоминание за 3 недели. Это повод написать и получить повторный заказ.'],
  [0,'🛒','Список закупок на неделю','Программа берёт заказы на ближайшие дни, раскладывает их по техкартам и пишет, сколько купить масла, сливок и сыра.'],
  [0,'📦','Остатки продуктов','Учёт того, что лежит в холодильнике: продукты списываются при выдаче заказа и напоминают, если что-то заканчивается.'],
- [0,'📷','Фото-референсы к заказу','Как в CakeBoss: к заказу прикрепляется картинка от клиента и фото готового торта для портфолио.'],
+ [1,'📷','Фото-референсы к заказу','Как в CakeBoss: к заказу прикрепляется картинка от клиента и фото готового торта для портфолио.'],
  [0,'🧮','Прайс-матрица','Как Cake Matrix в BakeSmart: цена за кг для каждой начинки плюс фиксированные надбавки за ярусы, фигурки и надписи. Цена получается за 10 секунд.'],
  [0,'🚫','Запрет несочетаемых начинок','BakeSmart не даёт выбрать сочетание начинки и крема, которого нет в меню. То же можно сделать и здесь.'],
  [0,'🏷️','Состав, аллергены и срок годности','Этикетка к торту собирается автоматически из техкарты.'],
- [0,'📈','Отчёт по прибыли и расходам','Расходы на продукты, доставку и пробег (как в CakeBoss), прибыль за месяц и самые выгодные начинки.'],
+ [1,'📈','Отчёт по прибыли и расходам','Расходы на продукты, доставку и пробег (как в CakeBoss), прибыль за месяц и самые выгодные начинки.'],
  [0,'⏱️','Учёт реального времени','Таймер на заказ показывает, сколько часов уходит на самом деле, чтобы ставка была честной.'],
- [0,'🔔','Напоминания о заказах','Уведомление за 2 дня до выдачи: купить продукты, испечь коржи.'],
- [0,'🌐','Меню-витрина для клиентов','Отдельная страница-ссылка с начинками и ценами за кг, которую можно отправить вместо долгой переписки.'],
- [0,'💾','Резервная копия','Выгрузка всех заказов и клиентов в файл.'],
+ [1,'🔔','Напоминания о заказах','Блок «Что сделать» и кнопка «В календарь»: телефон напомнит за 2 дня купить продукты, за день испечь коржи и за 2 часа о выдаче.'],
+ [1,'🌐','Меню-витрина для клиентов','Отдельная страница-ссылка с начинками и ценами за кг, которую можно отправить вместо долгой переписки.'],
+ [1,'💾','Резервная копия','Выгрузка всех заказов и клиентов в файл.'],
  [0,'🎁','Скидки постоянным','Автоматическая скидка начиная с N-го заказа или по сумме покупок.']];
 $('#ideas').innerHTML=IDEAS.map(([d,ic,t,p])=>`<div class="idea"><h4>${ic} ${t} <span class="badge ${d?'tag-done':'tag-plan'}">${d?'уже есть':'предлагаю'}</span></h4><p>${p}</p></div>`).join('');
 
@@ -1165,6 +1299,233 @@ function showImport(cs){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pick]');if(b){e.preventDefault();pickOne(b.dataset.pick)}});
 
+
+/* ================= ФОТО ================= */
+let phDbP=null;
+function phDb(){return phDbP||(phDbP=new Promise((res,rej)=>{try{const r=indexedDB.open('zefirka-photos',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))}
+function phTx(mode,fn){return phDb().then(db=>new Promise((res,rej)=>{const t=db.transaction('p',mode);const r=fn(t.objectStore('p'));t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)}))}
+const phPutLocal=(id,u)=>phTx('readwrite',st=>st.put(u,id));
+const phGetLocal=id=>phTx('readonly',st=>st.get(id));
+const phMem=new Map(),phWait=new Map();
+function phGet(id){
+  if(phMem.has(id))return Promise.resolve(phMem.get(id));
+  if(phWait.has(id))return phWait.get(id);
+  const p=(async()=>{let u=null;try{u=await phGetLocal(id)}catch(e){}
+    if(!u&&GH){try{const r=await ghFetch('/contents/photos/'+id+'.jpg?ref='+encodeURIComponent(GH.branch||'main'));
+      if(r.ok){const j=await r.json();if(j.content){u='data:image/jpeg;base64,'+j.content.replace(/\s/g,'');try{await phPutLocal(id,u)}catch(e){}}}}catch(e){}}
+    if(u)phMem.set(id,u);phWait.delete(id);return u})();
+  phWait.set(id,p);return p;
+}
+function hydrate(root){(root||document).querySelectorAll('img[data-ph]:not([src])').forEach(async im=>{const u=await phGet(im.dataset.ph);if(u)im.src=u;else{im.classList.add('miss');im.alt='нет фото'}})}
+async function compressImage(file,max=1400,q=0.8){
+  const url=URL.createObjectURL(file);const img=new Image();
+  await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url});
+  const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);URL.revokeObjectURL(url);
+  return c.toDataURL('image/jpeg',q);
+}
+async function addPhotos(files){const ids=[];for(const f of files){try{const u=await compressImage(f);const id='p'+uid();await phPutLocal(id,u);phMem.set(id,u);ids.push(id)}catch(e){toast('Не получилось прочитать фото')}}return ids}
+function phUploaded(){try{return new Set(JSON.parse(localStorage.getItem('zefirka-phup')||'[]'))}catch(e){return new Set()}}
+function phMarkUp(set){try{localStorage.setItem('zefirka-phup',JSON.stringify([...set]))}catch(e){}}
+function allPhotoIds(){const s=new Set();for(const o of S.orders)for(const p of (o.photos||[]))s.add(p.id);for(const m of S.menu)for(const id of (m.photos||[]))s.add(id);return s}
+let phUpBusy=false;
+async function phFlush(){ // догружаем в закрытый репозиторий фото, которых там ещё нет
+  if(!GH||phUpBusy)return;phUpBusy=true;
+  try{const up=phUploaded();for(const id of allPhotoIds()){if(up.has(id))continue;let u=null;try{u=await phGetLocal(id)}catch(e){}if(!u)continue;
+    const r=await ghFetch('/contents/photos/'+id+'.jpg',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Зефирка: фото',content:u.split(',')[1],branch:GH.branch||'main'})});
+    if(r.ok||r.status===422){up.add(id);phMarkUp(up)}else break}}catch(e){}finally{phUpBusy=false}
+}
+function portfolioIds(){const a=[];for(const o of [...S.orders].sort((x,y)=>(y.date||'').localeCompare(x.date||'')))for(const p of (o.photos||[]))if(p.kind==='result'&&p.port)a.push(p.id);return a}
+// просмотр фото на весь экран
+function viewPhoto(id){const pv=$('#pv');pv.innerHTML=`<img data-ph="${id}" alt="фото"><button class="pvx" aria-label="Закрыть">×</button>`;pv.classList.add('on');hydrate(pv);try{history.pushState({pv:1,tab:curTab},'')}catch(e){}}
+$('#pv').addEventListener('click',()=>closePv());
+document.addEventListener('click',e=>{const im=e.target.closest('[data-view]');if(im&&!e.target.closest('[data-rmph],[data-port]')){e.preventDefault();e.stopPropagation();viewPhoto(im.dataset.view)}},true);
+
+/* фото в форме заказа */
+function orderPhotosHtml(o){
+  const tile=(p)=>`<div class="ph"><img data-ph="${p.id}" data-view="${p.id}" alt="">${p.kind==='result'?`<button type="button" class="phstar${p.port?' on':''}" data-port="${p.id}" title="В портфолио">${p.port?'★':'☆'}</button>`:''}<button type="button" class="phx" data-rmph="${p.id}" aria-label="Убрать">×</button></div>`;
+  const add=k=>`<label class="ph phadd">＋<span>${k==='ref'?'фото':'фото'}</span><input type="file" accept="image/*" multiple data-addph="${k}" hidden></label>`;
+  const ps=o.photos||[];
+  return `<div class="phhead">📷 Референсы от клиента</div><div class="phs">${ps.filter(p=>p.kind==='ref').map(tile).join('')}${add('ref')}</div>
+  <div class="phhead">🎂 Готовый торт <span class="mute" style="font-weight:600">★ = показывать в портфолио и меню</span></div><div class="phs">${ps.filter(p=>p.kind==='result').map(tile).join('')}${add('result')}</div>`;
+}
+function bindOrderPhotos(o){
+  const box=$('#ophotos');const re=()=>{box.innerHTML=orderPhotosHtml(o);hydrate(box)};re();
+  box.addEventListener('change',async e=>{const k=e.target.dataset.addph;if(!k)return;const files=[...e.target.files];if(!files.length)return;toast('Обрабатываю фото…');const ids=await addPhotos(files);o.photos=[...(o.photos||[]),...ids.map(id=>({id,kind:k,...(k==='result'?{port:true}:{})}))];re()});
+  box.addEventListener('click',e=>{const rm=e.target.closest('[data-rmph]'),st=e.target.closest('[data-port]');
+    if(rm){o.photos=(o.photos||[]).filter(p=>p.id!==rm.dataset.rmph);re()}
+    if(st){o.photos=(o.photos||[]).map(p=>p.id===st.dataset.port?{...p,port:!p.port}:p);re()}});
+}
+
+/* ================= НАПОМИНАНИЯ ================= */
+const addDays=(ds,n)=>{const d=dparse(ds);d.setDate(d.getDate()+n);return dstr(d)};
+function renderTodo(){
+  const t=today(),d1=addDays(t,1),d2=addDays(t,2),d5=addDays(t,5),items=[];
+  const act=S.orders.filter(o=>!['done','cancel'].includes(o.status)).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  const nm=o=>`${esc(o.title||'заказ')} — ${esc(o.clientName||'')}`;
+  for(const o of act){
+    if(o.date<t)items.push(['warn',o.date,`⚠️ Прошёл ${shortDate(o.date)}, но не отмечен «Выдан»: ${nm(o)}`]);
+    else if(o.date===t)items.push(['hot',o.date,`🎂 <b>Сегодня выдача${o.time?' в '+esc(o.time):''}:</b> ${nm(o)}${o.status!=='ready'?' <span class="mute">(ещё не «Готов»)</span>':''}`]);
+    else if(o.date===d1)items.push(['',o.date,`🧁 <b>Завтра выдача</b>, сегодня печь и собирать: ${nm(o)}`]);
+    else if(o.date===d2)items.push(['',o.date,`🛒 <b>Послезавтра выдача</b>, купить продукты: ${nm(o)}`]);
+    if(o.date>=t&&o.date<=d5&&o.status==='new'&&!num(o.deposit))items.push(['warn',o.date,`💳 Нет предоплаты (выдача ${shortDate(o.date)}): ${nm(o)}`]);
+  }
+  $('#todoList').innerHTML=items.length?items.map(([c,d,h])=>`<button class="todo ${c}" data-day="${d}" data-jump="1">${h}</button>`).join(''):'<p class="empty-note" style="padding:6px">Срочных дел нет 🌿</p>';
+}
+function icsEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
+function icsEvent(o){
+  const [y,m,d]=o.date.split('-').map(Number),[hh,mm]=(o.time||'10:00').split(':').map(Number);
+  const st=new Date(y,m-1,d,hh||10,mm||0),en=new Date(st.getTime()+3600e3);
+  const f=x=>x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())+'T'+pad(x.getHours())+pad(x.getMinutes())+'00';
+  const now=new Date(),stamp=now.getUTCFullYear()+pad(now.getUTCMonth()+1)+pad(now.getUTCDate())+'T'+pad(now.getUTCHours())+pad(now.getUTCMinutes())+'00Z';
+  const t=(o.title||'Заказ')+(o.weight?', '+fx(num(o.weight),2)+' кг':'');
+  const al=(trig,txt)=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(txt),'TRIGGER:'+trig,'END:VALARM'];
+  return ['BEGIN:VEVENT','UID:'+o.id+'@zefirka','DTSTAMP:'+stamp,'DTSTART:'+f(st),'DTEND:'+f(en),
+    'SUMMARY:'+icsEsc('🎂 '+t+' — '+(o.clientName||'')),
+    'DESCRIPTION:'+icsEsc(clientText(o)+'\nТелефон: '+fmtPhone(o.clientPhone)+(o.notes?'\nЗаметки: '+o.notes:'')),
+    ...(o.delivery==='delivery'&&o.address?['LOCATION:'+icsEsc(o.address)]:[]),
+    ...al('-P2D','Купить продукты: '+t),...al('-P1D','Испечь коржи: '+t),...al('-PT2H','Выдача через 2 часа: '+t),'END:VEVENT'];
+}
+function icsFile(orders){return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Zefirka//RU','CALSCALE:GREGORIAN','METHOD:PUBLISH',...orders.flatMap(icsEvent),'END:VCALENDAR'].join('\r\n')}
+function saveIcs(orders,name){
+  const text=icsFile(orders);
+  if(/iPhone|iPad|iPod/.test(navigator.userAgent)){location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(text);return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/calendar;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast('Откройте скачанный файл, и заказ добавится в календарь')}catch(e){toast('Не получилось создать файл календаря')}
+}
+
+/* ================= ОТЧЁТ ================= */
+const EXP_CATS={food:'🛒 Продукты',pack:'📦 Упаковка',deco:'✨ Декор',delivery:'🚕 Доставка / такси',km:'🚗 Пробег',equip:'🔧 Оборудование',ads:'📣 Реклама',other:'🧾 Другое'};
+const rep={y:new Date().getFullYear(),m:new Date().getMonth()};
+const expSum=e=>e.cat==='km'?num(e.km)*(num(e.rate)||num(S.settings.kmRate)||0):num(e.amount);
+function monthData(y,m){const pref=y+'-'+pad(m+1);const os=S.orders.filter(o=>(o.date||'').startsWith(pref)&&o.status!=='cancel');const ex=S.expenses.filter(e=>(e.date||'').startsWith(pref));
+  return{os,ex,rev:sum(os,o=>num(o.price)),exp:sum(ex,expSum),cost:sum(os,o=>num(o.cost))}}
+function renderReport(){
+  $('#repTitle').textContent=cap(MON[rep.m])+' '+rep.y;
+  const M=monthData(rep.y,rep.m),profit=M.rev-M.exp;
+  $('#repStats').innerHTML=stat('Выручка',rub(M.rev))+stat('Расходы',rub(M.exp))+stat('Прибыль',profit<0?`<span class="pup">${rub(profit)}</span>`:rub(profit))+stat('Заказов',M.os.length)+stat('Средний чек',M.os.length?rub(M.rev/M.os.length):'—');
+  $('#repHint').innerHTML=M.cost?`По калькулятору себестоимость заказов этого месяца <b>${rub(M.cost)}</b>, а по чекам расходы <b>${rub(M.exp)}</b>.${M.exp<M.cost*0.5&&M.os.length?' Похоже, не все расходы внесены.':''}`:'';
+  // список расходов
+  const ex=[...M.ex].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  $('#expList').innerHTML=ex.length?ex.map(e=>`<div class="exr"><span class="mute">${dparse(e.date).getDate()} ${MON_G[dparse(e.date).getMonth()].slice(0,3)}</span><span>${EXP_CATS[e.cat]||e.cat}${e.cat==='km'?` · ${fx(num(e.km))} км`:''}${e.note?` · <span class="mute">${esc(e.note)}</span>`:''}</span><b>${rub(expSum(e))}</b><button class="x" data-delexp="${e.id}" title="Удалить">×</button></div>`).join(''):'<p class="empty-note">Расходов за этот месяц пока нет</p>';
+  // по статьям
+  const byCat=Object.keys(EXP_CATS).map(k=>[k,sum(M.ex.filter(e=>e.cat===k),expSum)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...byCat.map(x=>x[1]));
+  $('#expCats').innerHTML=byCat.length?byCat.map(([k,v])=>`<div class="hb"><span>${EXP_CATS[k]}</span><div class="hbt"><i style="width:${v/mx*100}%"></i></div><b>${rub(v)}</b></div>`).join(''):'<p class="empty-note">Нет данных</p>';
+  // 6 месяцев
+  const ms=[];for(let i=5;i>=0;i--){const d=new Date(rep.y,rep.m-i,1);ms.push([d,monthData(d.getFullYear(),d.getMonth())])}
+  const top=Math.max(1,...ms.map(([,x])=>Math.max(x.rev,x.exp)));
+  $('#repBars').innerHTML=`<div class="vb">${ms.map(([d,x])=>`<div class="vbc"><div class="vbb"><i class="r" style="height:${x.rev/top*100}%" title="Выручка ${rub(x.rev)}"></i><i class="e" style="height:${x.exp/top*100}%" title="Расходы ${rub(x.exp)}"></i></div><span>${MON[d.getMonth()].slice(0,3)}</span><small>${x.rev-x.exp>=0?'+':''}${fx(Math.round((x.rev-x.exp)/1000),0)}к</small></div>`).join('')}</div><div class="legend"><span><i style="background:var(--pink)"></i>выручка</span><span><i style="background:var(--warn)"></i>расходы</span><span>подпись снизу: прибыль, тыс. ₽</span></div>`;
+  // выгодные начинки (за всё время)
+  const g=new Map();for(const o of S.orders){if(o.status==='cancel'||!o.filling)continue;const k=o.filling.trim().toLowerCase();const x=g.get(k)||{name:o.filling.trim(),n:0,rev:0,kg:0,cost:0,revC:0};x.n++;x.rev+=num(o.price);x.kg+=num(o.weight);if(num(o.cost)>0){x.cost+=num(o.cost);x.revC+=num(o.price)}g.set(k,x)}
+  const fl=[...g.values()].map(x=>({...x,profit:x.revC-x.cost})).sort((a,b)=>(b.profit-a.profit)||(b.rev-a.rev)).slice(0,8);
+  $('#topFill').innerHTML=fl.length?`<table><thead><tr><th>Начинка</th><th class="num">Заказов</th><th class="num">Выручка</th><th class="num">₽ за кг</th><th class="num">Прибыль</th></tr></thead><tbody>${fl.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td class="num">${x.n}</td><td class="num">${rub(x.rev)}</td><td class="num">${x.kg?rub(x.rev/x.kg):'—'}</td><td class="num">${x.cost?rub(x.profit):'<span class="mute" title="у заказов не указана себестоимость">—</span>'}</td></tr>`).join('')}</tbody></table><p class="mute" style="font-size:12px;margin:6px 0 0">Прибыль считается по заказам, где есть себестоимость (её подставляет «Оформить заказ» из калькулятора).</p>`:'<p class="empty-note">Появится, когда у заказов будет указана начинка</p>';
+}
+function expFormSync(){const km=$('#exCat').value==='km';$('#exAmtL').firstChild.textContent=km?'Километров':'Сумма, ₽';$('#exKmHint').textContent=km?`× ${fx(num(S.settings.kmRate))} ₽/км (ставка в ⚙️)`:''}
+
+/* ================= МЕНЮ-ВИТРИНА ================= */
+const MENU_CATS=['Торты','Бенто-торты','Муссовые торты','Капкейки','Зефир','Пирожные','Наборы','Другое'];
+const shop=()=>({title:'Зефирка',tagline:'Сладости для радости',phone:'',wa:true,tg:'',ig:'',vk:'',city:'',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.',...(S.settings.shop||{})});
+function renderMenuEditor(){
+  const ms=[...S.menu].sort((a,b)=>(num(a.sort)-num(b.sort))||(a.name||'').localeCompare(b.name||''));
+  $('#menuList').innerHTML=ms.length?ms.map(m=>`<div class="mi${m.visible===false?' hidden':''}" data-menu="${m.id}">
+      <div class="mith">${(m.photos||[])[0]?`<img data-ph="${m.photos[0]}" alt="">`:'<span>🍰</span>'}</div>
+      <div style="flex:1;min-width:0"><div class="nm">${esc(m.name)}${m.visible===false?' <span class="badge">скрыто</span>':''}</div>
+      <div class="mute" style="font-size:12.5px">${esc(m.cat||'')}${m.price?` · ${rub(num(m.price))} / ${esc(m.unit||'кг')}`:''}${(m.photos||[]).length?` · фото: ${m.photos.length}`:''}</div></div></div>`).join('')
+    :'<p class="empty-note">Добавьте торты и десерты, которые хотите показывать клиентам</p>';
+  const pf=portfolioIds();
+  $('#portGrid').innerHTML=pf.length?pf.map(id=>`<div class="ph"><img data-ph="${id}" data-view="${id}" alt=""></div>`).join(''):'<p class="empty-note">Сюда попадают фото готовых тортов со звёздочкой ★ из заказов</p>';
+  const s=shop();
+  ['title','tagline','phone','tg','ig','vk','city','note'].forEach(k=>{const e=$('#sh_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
+  const w=$('#sh_wa');if(w)w.checked=s.wa!==false;
+  const pub=(S.settings.menuPublished||'');$('#menuLink').style.display=pub?'':'none';$('#menuLink').innerHTML=pub?`🌐 Меню опубликовано ${new Date(pub).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}: <a href="${esc(menuUrl())}" target="_blank" rel="noopener">${esc(menuUrl())}</a> <button class="ghost mini" data-act="copyMenu">Копировать ссылку</button>`:'';
+  hydrate($('#s-lib'));
+}
+function menuUrl(){const o=(GH&&GH.owner)||'slavahoh1976-ops',r=(GH&&GH.pubRepo)||'zefirka';return `https://${o.toLowerCase()}.github.io/${r}/menu.html`}
+function openMenuItem(m){
+  const isNew=!m;m=m?clone(m):{id:uid(),name:'',cat:'Торты',desc:'',price:'',unit:'кг',minQty:'',photos:[],visible:true,sort:S.menu.length+1};
+  const recs=[...new Set(S.recipes.filter(r=>r.type!=='syrup').map(r=>r.name))];
+  modal(`<h3>${isNew?'Новая позиция меню':esc(m.name)}</h3>
+  <form id="mf" class="grid2" autocomplete="off">
+    <label class="full">Название *<input name="name" required value="${esc(m.name)}" placeholder="Торт «Красный бархат»" list="mfNames"></label>
+    <datalist id="mfNames">${recs.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+    <label>Раздел<input name="cat" list="mfCats" value="${esc(m.cat||'')}"></label><datalist id="mfCats">${MENU_CATS.map(c=>`<option value="${c}">`).join('')}</datalist>
+    <label>Порядок в меню<input name="sort" inputmode="numeric" value="${esc(m.sort??'')}"></label>
+    <label>Цена, ₽<input name="price" inputmode="decimal" value="${esc(m.price)}" placeholder="2800"></label>
+    <label>За<select name="unit">${['кг','шт','набор','порцию'].map(u=>`<option${u===m.unit?' selected':''}>${u}</option>`).join('')}</select></label>
+    <label class="full">Минимальный заказ<input name="minQty" value="${esc(m.minQty||'')}" placeholder="от 1,5 кг"></label>
+    <label class="full">Описание (вкус, начинка, состав)<textarea name="desc" rows="3">${esc(m.desc||'')}</textarea></label>
+    <label class="ck full"><input type="checkbox" name="visible" ${m.visible!==false?'checked':''}> Показывать клиентам</label>
+    <div class="full"><div class="phhead">📷 Фото (первое станет обложкой)</div><div class="phs" id="mfPh"></div>
+      ${portfolioIds().length?`<div class="phhead" style="margin-top:8px">Добавить из портфолио (нажмите на фото)</div><div class="phs small" id="mfPort">${portfolioIds().map(id=>`<div class="ph pick" data-pickph="${id}"><img data-ph="${id}" alt=""></div>`).join('')}</div>`:''}</div>
+    <div class="full btns">${!isNew?'<button type="button" class="danger" id="mDel">Удалить</button>':''}<span class="sp"></span><button type="button" class="ghost" data-act="close">Отмена</button><button class="primary">Сохранить</button></div>
+  </form>`);
+  const box=$('#mfPh');
+  const re=()=>{box.innerHTML=(m.photos||[]).map((id,k)=>`<div class="ph"><img data-ph="${id}" data-view="${id}" alt="">${k?`<button type="button" class="phstar" data-first="${id}" title="Сделать обложкой">⇧</button>`:''}<button type="button" class="phx" data-rmph="${id}">×</button></div>`).join('')+`<label class="ph phadd">＋<span>фото</span><input type="file" accept="image/*" multiple id="mfAdd" hidden></label>`;hydrate(box);
+    $('#mfAdd').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;toast('Обрабатываю фото…');m.photos=[...(m.photos||[]),...await addPhotos(fs)];re()};
+    document.querySelectorAll('#mfPort [data-pickph]').forEach(el=>el.classList.toggle('on',(m.photos||[]).includes(el.dataset.pickph)))};
+  re();hydrate($('#md'));
+  $('#mf').addEventListener('click',e=>{const rm=e.target.closest('[data-rmph]'),fi=e.target.closest('[data-first]'),pk=e.target.closest('[data-pickph]');
+    if(rm){m.photos=m.photos.filter(x=>x!==rm.dataset.rmph);re()}
+    if(fi){m.photos=[fi.dataset.first,...m.photos.filter(x=>x!==fi.dataset.first)];re()}
+    if(pk){const id=pk.dataset.pickph;m.photos=(m.photos||[]).includes(id)?m.photos.filter(x=>x!==id):[...(m.photos||[]),id];re()}});
+  $('#mf').addEventListener('submit',e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));put('menu',{...m,...fd,visible:!!e.target.visible.checked,sort:num(fd.sort)});closeModal();toast('Сохранено. Чтобы клиенты увидели, нажмите «Опубликовать»')});
+  if($('#mDel'))$('#mDel').onclick=()=>confirmBox('Удалить позицию из меню?',()=>{remove('menu',m.id);closeModal()});
+}
+function saveShopField(e){const k=e.target.id.replace('sh_','');const s=shop();s[k]=e.target.type==='checkbox'?e.target.checked:e.target.value;S.settings.shop=s;saveSettings()}
+function menuPayload(){
+  const items=[...S.menu].filter(m=>m.visible!==false).sort((a,b)=>(num(a.sort)-num(b.sort))||(a.name||'').localeCompare(b.name||''))
+    .map(m=>({id:m.id,name:m.name,cat:m.cat||'',desc:m.desc||'',price:num(m.price)||null,unit:m.unit||'кг',minQty:m.minQty||'',photos:m.photos||[]}));
+  return{v:1,updated:new Date().toISOString(),shop:shop(),items,gallery:portfolioIds().slice(0,30)};
+}
+async function previewMenu(){
+  const p=menuPayload(),data={};
+  for(const id of new Set([...p.items.flatMap(i=>i.photos.slice(0,3)),...p.gallery.slice(0,12)])){const u=await phGet(id);if(u)data[id]=u}
+  try{localStorage.setItem('zefirka-menu-preview',JSON.stringify({...p,photoData:data}))}catch(e){try{localStorage.setItem('zefirka-menu-preview',JSON.stringify({...p,photoData:{}}))}catch(_){}}
+  const w=window.open('menu.html?preview=1','_blank');if(!w)location.href='menu.html?preview=1';
+}
+function pubFetch(path,opt={}){return fetch('https://api.github.com/repos/'+encodeURIComponent(GH.owner)+'/'+encodeURIComponent(GH.pubRepo||'zefirka')+path,{cache:'no-store',...opt,headers:{Authorization:'Bearer '+GH.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}})}
+async function publishMenu(){
+  if(!GH){toast('Сначала включите синхронизацию в ⚙️, она даёт ключ для публикации');openSettings();return}
+  const btn=$('#pubBtn');btn.disabled=true;const old=btn.textContent;
+  try{
+    const p=menuPayload();if(!p.items.length)throw'В меню нет видимых позиций';
+    const r0=await pubFetch('');if(r0.status===404||r0.status===403||r0.status===401)throw'need-access';if(!r0.ok)throw'GitHub ответил '+r0.status;
+    const done=(()=>{try{return new Set(JSON.parse(localStorage.getItem('zefirka-pubph')||'[]'))}catch(e){return new Set()}})();
+    const ids=[...new Set([...p.items.flatMap(i=>i.photos),...p.gallery])];let k=0;
+    for(const id of ids){k++;btn.textContent=`Фото ${k}/${ids.length}…`;if(done.has(id))continue;const u=await phGet(id);if(!u){p.items.forEach(i=>i.photos=i.photos.filter(x=>x!==id));p.gallery=p.gallery.filter(x=>x!==id);continue}
+      const r=await pubFetch('/contents/menu/'+id+'.jpg',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Меню: фото',content:u.split(',')[1]})});
+      if(r.ok||r.status===422){done.add(id);try{localStorage.setItem('zefirka-pubph',JSON.stringify([...done]))}catch(e){}}else if(r.status===403||r.status===404)throw'need-access';else throw'Фото не загрузилось ('+r.status+')'}
+    btn.textContent='Сохраняю меню…';
+    let sha;const g=await pubFetch('/contents/menu.json?_='+Date.now());if(g.ok)sha=(await g.json()).sha;
+    const w=await pubFetch('/contents/menu.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Меню обновлено',content:b64e(JSON.stringify(p,null,1)),...(sha?{sha}:{})})});
+    if(w.status===403||w.status===404)throw'need-access';if(!w.ok)throw'Меню не сохранилось ('+w.status+')';
+    S.settings.menuPublished=new Date().toISOString();saveSettings();
+    toast('Меню опубликовано! Обновится на сайте через 1–2 минуты');
+  }catch(e){
+    if(e==='need-access')modal(`<h3>Нужен доступ к репозиторию «${esc(GH.pubRepo||'zefirka')}»</h3><p>Меню публикуется в открытый репозиторий сайта. Ключу синхронизации нужно разрешить запись и туда:</p>
+      <ol style="padding-left:20px;line-height:1.6;font-size:14px"><li>Откройте <b>github.com/settings/personal-access-tokens</b> и выберите ключ «Зефирка».</li><li><b>Repository access</b>: добавьте <b>${esc(GH.pubRepo||'zefirka')}</b> к <b>zefirka-data</b>.</li><li>Проверьте <b>Contents: Read and write</b> и нажмите <b>Update</b>.</li><li>Вернитесь и снова нажмите «Опубликовать».</li></ol>
+      <p class="mute" style="font-size:13px">В открытый репозиторий попадает только меню и фото из него. Клиенты и заказы остаются в закрытом.</p><div class="btns"><span class="sp"></span><button class="primary" data-act="close">Понятно</button></div>`);
+    else toast(typeof e==='string'?e:'Нет связи с GitHub');
+  }finally{btn.disabled=false;btn.textContent=old}
+}
+
+
+/* ---------- подключение новых разделов ---------- */
+$('#exCat').innerHTML=Object.entries(EXP_CATS).map(([k,t])=>`<option value="${k}">${t}</option>`).join('');
+$('#exDate').value=today();
+$('#exCat').addEventListener('change',expFormSync);expFormSync();
+$('#exf').addEventListener('submit',e=>{e.preventDefault();const cat=$('#exCat').value,v=num($('#exAmt').value);if(!v){toast('Введите сумму');return}
+  const ex={id:uid(),date:$('#exDate').value||today(),cat,note:$('#exNote').value.trim(),...(cat==='km'?{km:v,rate:num(S.settings.kmRate)}:{amount:v})};
+  put('expenses',ex);$('#exAmt').value='';$('#exNote').value='';const d=dparse(ex.date);rep.y=d.getFullYear();rep.m=d.getMonth();renderReport();toast('Расход добавлен: '+rub(expSum(ex)))});
+$('#libSeg').addEventListener('click',e=>{const b=e.target.closest('[data-ls]');if(!b)return;document.querySelectorAll('#libSeg button').forEach(x=>x.classList.toggle('on',x===b));$('#lsRec').style.display=b.dataset.ls==='rec'?'':'none';$('#lsMenu').style.display=b.dataset.ls==='menu'?'':'none';if(b.dataset.ls==='menu')renderMenuEditor()});
+$('#shopForm').addEventListener('change',e=>{if(e.target.id&&e.target.id.startsWith('sh_'))saveShopField(e)});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-ics],[data-delexp],[data-menu],[data-tab-go]');if(!t)return;
+  if(t.dataset.ics){const o=S.orders.find(x=>x.id===t.dataset.ics);if(o)saveIcs([o],'zakaz-'+o.date+'.ics')}
+  else if(t.dataset.delexp){confirmBox('Удалить расход?',()=>remove('expenses',t.dataset.delexp))}
+  else if(t.dataset.menu){const m=S.menu.find(x=>x.id===t.dataset.menu);if(m)openMenuItem(m)}
+  else if(t.dataset.tabGo)showTab(t.dataset.tabGo,true);
+});
+
 /* ---------- global clicks ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act],[data-day],[data-edit],[data-msg],[data-client],[data-ing],[data-rec]');if(!t)return;
@@ -1175,6 +1536,13 @@ document.addEventListener('click',e=>{
   if(a==='todayBtn'){const d=new Date();cal.y=d.getFullYear();cal.m=d.getMonth();cal.sel=today();renderCal();return renderDay()}
   if(a==='newOrder')return openOrder(null,{date:cal.sel});
   if(a==='newClient')return openClient(null);
+  if(a==='weekIcs'){const t0=today(),t14=addDays(t0,14);const os=S.orders.filter(o=>o.date>=t0&&o.date<=t14&&!['done','cancel'].includes(o.status));if(!os.length)return toast('На 2 недели вперёд заказов нет');return saveIcs(os,'zefirka-zakazy.ics')}
+  if(a==='repPrev'){rep.m--;if(rep.m<0){rep.m=11;rep.y--}return renderReport()}
+  if(a==='repNext'){rep.m++;if(rep.m>11){rep.m=0;rep.y++}return renderReport()}
+  if(a==='newMenu')return openMenuItem(null);
+  if(a==='previewMenu')return previewMenu();
+  if(a==='publishMenu')return publishMenu();
+  if(a==='copyMenu'){navigator.clipboard.writeText(menuUrl()).then(()=>toast('Ссылка скопирована ✓'),()=>toast(menuUrl()));return}
   if(a==='importContacts')return importContacts();
   if(a==='newIng')return addIngRow();
   if(a==='hideImpact'){$('#priceImpact').innerHTML='';return}
@@ -1203,6 +1571,8 @@ document.addEventListener('change',e=>{const id=e.target.dataset.status;if(id){c
 
 /* ---------- render ---------- */
 function renderAll(){
+  setTimeout(()=>hydrate(),0);
+  try{renderTodo();renderReport();if($('#lsMenu').style.display!=='none')renderMenuEditor()}catch(e){console.error(e)}
   renderCal();renderDay();renderClients();renderLib();fillDatalist();fillCalcDefaults();
   const had=calc.comps.length;ensureComps();
   if(!had||!document.activeElement||!document.activeElement.closest('#comps'))renderComps();

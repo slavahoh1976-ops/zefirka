@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Зефирка — меню тортов и десертов</title>
+<meta name="description" content="Торты и десерты на заказ: начинки, цены и фото работ.">
+<meta property="og:title" content="Зефирка — сладости для радости">
+<meta property="og:description" content="Торты и десерты на заказ: меню, цены и фото работ">
+<meta property="og:image" content="logo-big.png">
+<meta name="theme-color" content="#fbf6f2">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf6f2;--card:#fff;--plum:#5b2a45;--plum2:#7a3b5c;--rose:#d98aa0;--rose-l:#f8e6ea;--gold:#c9a36a;--lav:#a58bc4;--ink:#3d2733;--mute:#8d7480;--line:#efe2dc}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;
+  background-image:radial-gradient(circle at 0 0,#f9e3e9 0,transparent 38%),radial-gradient(circle at 100% 18%,#efe6f6 0,transparent 32%),radial-gradient(circle at 50% 100%,#f8eedd 0,transparent 40%);background-attachment:fixed}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+.hero{text-align:center;padding:calc(26px + env(safe-area-inset-top)) 0 10px}
+.hero img{width:min(320px,74vw);height:auto;display:block;margin:0 auto}
+.hero .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:var(--plum2);margin:4px 0 0}
+.hero .city{color:var(--mute);font-size:14px;margin-top:2px}
+.contacts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:18px 0 8px}
+.cbtn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--plum);box-shadow:0 4px 14px rgba(91,42,69,.07)}
+.cbtn.main{background:var(--plum);color:#fff;border-color:var(--plum)}
+.cbtn svg{width:18px;height:18px}
+.orn{display:flex;align-items:center;gap:14px;justify-content:center;margin:30px 0 16px}
+.orn::before,.orn::after{content:"";height:1px;flex:1;max-width:160px;background:linear-gradient(90deg,transparent,var(--gold))}
+.orn::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.orn h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;color:var(--plum);margin:0;white-space:nowrap}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;justify-content:safe center}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 16px;font-weight:700;font-size:14px;color:var(--plum);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--rose);border-color:var(--rose);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.item{background:var(--card);border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(91,42,69,.08);border:1px solid #f4e9e5;display:flex;flex-direction:column}
+.gal{position:relative;aspect-ratio:4/3;background:linear-gradient(135deg,#f8e6ea,#f3ecf8)}
+.gal .sl{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100%;scrollbar-width:none}
+.gal .sl::-webkit-scrollbar{display:none}
+.gal img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in}
+.gal .ph0{display:flex;align-items:center;justify-content:center;height:100%;font-size:54px}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;gap:5px;justify-content:center}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6)}.dots i.on{background:#fff}
+.cat{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);color:var(--plum);font-size:12px;font-weight:800;padding:4px 10px;border-radius:99px}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.body h3{font-family:'Cormorant Garamond',serif;font-size:27px;line-height:1.1;margin:0 0 6px;color:var(--plum);font-weight:700}
+.desc{color:#6d5662;font-size:14.5px;margin:0 0 12px;white-space:pre-line;flex:1}
+.pr{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.price{font-size:22px;font-weight:800;color:var(--plum)}.price small{font-size:13px;color:var(--mute);font-weight:600}
+.min{font-size:12.5px;color:var(--mute)}
+.order{border:0;background:var(--rose);color:#fff;font-weight:800;font-size:14.5px;padding:11px 18px;border-radius:99px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.order:hover{background:#c97590}
+.works{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.works img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;cursor:zoom-in;display:block;background:var(--rose-l)}
+.note{max-width:640px;margin:0 auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 22px;color:#6d5662;white-space:pre-line}
+footer{text-align:center;color:var(--mute);font-size:13px;padding:30px 0 calc(30px + env(safe-area-inset-bottom))}
+.lb{position:fixed;inset:0;background:rgba(30,12,22,.92);display:none;align-items:center;justify-content:center;z-index:9;padding:14px}
+.lb.on{display:flex}.lb img{max-width:100%;max-height:100%;border-radius:12px}
+.lbx{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:28px}
+.empty{text-align:center;color:var(--mute);padding:40px 10px;font-size:16px}
+.pvbar{position:sticky;top:0;z-index:5;background:#5b2a45;color:#fff;text-align:center;font-size:13px;padding:8px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.orn h2{font-size:29px}.body h3{font-size:25px}.works{grid-template-columns:repeat(3,1fr);gap:6px}.works img{border-radius:10px}}
+</style>
+</head>
+<body>
+<div id="pvbar"></div>
+<div class="wrap">
+  <header class="hero">
+    <img src="logo-big.png" alt="Зефирка — сладости для радости" width="320" height="290">
+    <p class="sub" id="sub"></p>
+    <div class="city" id="city"></div>
+    <div class="contacts" id="contacts"></div>
+  </header>
+  <main id="main"><div class="empty">Загружаю меню…</div></main>
+  <footer id="foot"></footer>
+</div>
+<div class="lb" id="lb"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rub=n=>Math.round(n||0).toLocaleString('ru-RU')+' ₽';
+const preview=new URLSearchParams(location.search).has('preview');
+let D=null,PD={},cat='Все';
+const src=id=>preview?(PD[id]||''):'menu/'+encodeURIComponent(id)+'.jpg';
+const digits=p=>{let d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='8')d='7'+d.slice(1);if(d.length===10)d='7'+d;return d};
+const IC={wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.2z"/></svg>',
+ tg:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.6 18.8 19c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L7 13l-4.6-1.4c-1-.3-1-1 .2-1.5L20.5 3.3c.9-.3 1.6.2 1.4 1.3z"/></svg>',
+ ph:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>',
+ ig:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',
+ vk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.8 17.5c-5.5 0-8.6-3.8-8.8-10h2.8c.1 4.6 2.1 6.5 3.7 6.9V7.5h2.6v3.9c1.6-.2 3.3-2 3.8-3.9h2.6a7.7 7.7 0 0 1-3.5 5 8 8 0 0 1 4.1 5h-2.9c-.6-1.9-2.1-3.3-4.1-3.5v3.5z"/></svg>'};
+function orderLink(text){const s=D.shop||{},ph=digits(s.phone);
+  if(ph&&s.wa!==false)return 'https://wa.me/'+ph+'?text='+encodeURIComponent(text);
+  if(s.tg)return 'https://t.me/'+String(s.tg).replace(/^@|https?:\/\/t\.me\//g,'');
+  if(ph)return 'tel:+'+ph;return null}
+function render(){
+  const s=D.shop||{};document.title=(s.title||'Зефирка')+' — меню тортов и десертов';
+  $('#sub').textContent=s.tagline||'';$('#city').textContent=s.city?'📍 '+s.city:'';
+  const ph=digits(s.phone),c=[];
+  if(ph&&s.wa!==false)c.push(`<a class="cbtn main" href="https://wa.me/${ph}" target="_blank" rel="noopener">${IC.wa} WhatsApp</a>`);
+  if(s.tg)c.push(`<a class="cbtn" href="https://t.me/${esc(String(s.tg).replace(/^@|https?:\/\/t\.me\//g,''))}" target="_blank" rel="noopener">${IC.tg} Telegram</a>`);
+  if(ph)c.push(`<a class="cbtn" href="tel:+${ph}">${IC.ph} +${ph.replace(/^(\d)(\d{3})(\d{3})(\d{2})(\d{2})$/,'$1 $2 $3-$4-$5')}</a>`);
+  if(s.ig)c.push(`<a class="cbtn" href="https://instagram.com/${esc(String(s.ig).replace(/^@/,''))}" target="_blank" rel="noopener">${IC.ig} Instagram</a>`);
+  if(s.vk)c.push(`<a class="cbtn" href="${/^https?:/.test(s.vk)?esc(s.vk):'https://vk.com/'+esc(s.vk)}" target="_blank" rel="noopener">${IC.vk} ВКонтакте</a>`);
+  $('#contacts').innerHTML=c.join('');
+  const items=D.items||[],cats=['Все',...new Set(items.map(i=>i.cat).filter(Boolean))];
+  const list=cat==='Все'?items:items.filter(i=>i.cat===cat);
+  let h='';
+  if(items.length){
+    h+=`<div class="orn"><h2>Меню</h2></div>`;
+    if(cats.length>2)h+=`<div class="chips">${cats.map(c=>`<button class="chip${c===cat?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}</div>`;
+    h+=`<div class="grid">${list.map(i=>{const ps=(i.photos||[]).filter(p=>!preview||PD[p]);const link=orderLink(`Здравствуйте! Хочу заказать «${i.name}».`);
+      return `<article class="item"><div class="gal">${ps.length?`<div class="sl">${ps.map(p=>`<img src="${src(p)}" data-big="${esc(p)}" alt="${esc(i.name)}" loading="lazy">`).join('')}</div>${ps.length>1?`<div class="dots">${ps.map((_,k)=>`<i class="${k?'':'on'}"></i>`).join('')}</div>`:''}`:'<div class="ph0">🍰</div>'}${i.cat?`<span class="cat">${esc(i.cat)}</span>`:''}</div>
+      <div class="body"><h3>${esc(i.name)}</h3>${i.desc?`<p class="desc">${esc(i.desc)}</p>`:'<p class="desc"></p>'}
+      <div class="pr"><div>${i.price?`<div class="price">${rub(i.price)} <small>/ ${esc(i.unit||'кг')}</small></div>`:''}${i.minQty?`<div class="min">${esc(i.minQty)}</div>`:''}</div>${link?`<a class="order" href="${link}" target="_blank" rel="noopener">Заказать</a>`:''}</div></div></article>`}).join('')}</div>`;
+  }else h+='<div class="empty">Меню скоро появится 💗</div>';
+  const g=(D.gallery||[]).filter(p=>!preview||PD[p]);
+  if(g.length)h+=`<div class="orn"><h2>Наши работы</h2></div><div class="works">${g.map(p=>`<img src="${src(p)}" data-big="${esc(p)}" alt="Торт Зефирки" loading="lazy">`).join('')}</div>`;
+  if(s.note)h+=`<div class="orn"><h2>Как заказать</h2></div><div class="note">${esc(s.note)}</div>`;
+  $('#main').innerHTML=h;
+  $('#foot').innerHTML=`${esc(s.title||'Зефирка')} · ${esc(s.tagline||'')}${D.updated?`<br>Меню обновлено ${new Date(D.updated).toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}`:''}`;
+  document.querySelectorAll('.sl').forEach(sl=>sl.addEventListener('scroll',()=>{const k=Math.round(sl.scrollLeft/sl.clientWidth);sl.parentNode.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j===k))},{passive:true}));
+}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(c){cat=c.dataset.cat;render();return}
+  const im=e.target.closest('img[data-big]');if(im){$('#lb').innerHTML=`<img src="${im.src}" alt=""><button class="lbx" aria-label="Закрыть">×</button>`;$('#lb').classList.add('on');return}
+  if(e.target.closest('#lb')){$('#lb').classList.remove('on');$('#lb').innerHTML=''}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#lb').classList.remove('on')});
+(async()=>{
+  if(preview){try{const j=JSON.parse(localStorage.getItem('zefirka-menu-preview')||'null');if(j){D=j;PD=j.photoData||{};$('#pvbar').innerHTML='<div class="pvbar">Предпросмотр: так меню увидят клиенты после публикации</div>';render();return}}catch(e){}}
+  try{const r=await fetch('menu.json?_='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;D=await r.json();render()}
+  catch(e){D={shop:{title:'Зефирка',tagline:'Сладости для радости'},items:[]};render()}
+})();
+</script>
+</body>
+</html>
