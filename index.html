@@ -543,7 +543,7 @@ header{padding-top:env(safe-area-inset-top)}
             <label>Заказы приходят в<select id="sh_orderTo"><option value="tg">Telegram</option><option value="wa">WhatsApp</option></select></label>
             <label class="full">Telegram-канал с примерами<input id="sh_channel" autocapitalize="off" placeholder="https://t.me/…"></label>
             <label>Instagram (ник)<input id="sh_ig" autocapitalize="off"></label>
-            <label>ВКонтакте (ссылка или ник)<input id="sh_vk" autocapitalize="off"></label><label>Город / район<input id="sh_city"></label>
+            <label>ВКонтакте (ссылка или ник)<input id="sh_vk" autocapitalize="off"></label><label>MAX (ссылка на ваш профиль)<input id="sh_max" autocapitalize="off" placeholder="https://max.ru/..."></label><label>Город / район<input id="sh_city"></label>
             <label class="full">За сколько дней минимум можно заказать (в форме для клиентов)<input id="sh_minDays" inputmode="numeric"></label>
             <label class="full">Условия заказа<textarea id="sh_note" rows="2"></textarea></label>
           </div>
@@ -616,7 +616,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.8 · 16.11.2026';
+const APP_VERSION='2.9 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1450,7 +1450,7 @@ function expFormSync(){const km=$('#exCat').value==='km';$('#exAmtL').firstChild
 
 /* ================= МЕНЮ-ВИТРИНА ================= */
 const MENU_CATS=['Торты','Бенто-торты','Муссовые торты','Капкейки','Зефир','Пирожные','Наборы','Другое'];
-const SHOP_DEF={title:'Зефирка',tagline:'Сладости для радости',phone:'+7 963 721-08-98',wa:true,tg:'EkaterinaByrsan',channel:'https://t.me/zefirkavkus',orderTo:'tg',ig:'',vk:'',city:'',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.',minDays:3};
+const SHOP_DEF={title:'Зефирка',tagline:'Сладости для радости',phone:'+7 963 721-08-98',wa:true,tg:'EkaterinaByrsan',channel:'https://t.me/zefirkavkus',orderTo:'tg',ig:'',vk:'',max:'',city:'',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.',minDays:3};
 const shop=()=>{const s={...SHOP_DEF};for(const[k,v]of Object.entries(S.settings.shop||{}))if(v!==''&&v!=null)s[k]=v;return s};
 function renderMenuEditor(){
   const ms=[...S.menu].sort((a,b)=>(num(a.sort)-num(b.sort))||(a.name||'').localeCompare(b.name||''));
@@ -1462,7 +1462,7 @@ function renderMenuEditor(){
   const pf=portfolioIds();
   $('#portGrid').innerHTML=pf.length?pf.map(id=>`<div class="ph"><img data-ph="${id}" data-view="${id}" alt=""></div>`).join(''):'<p class="empty-note">Сюда попадают фото готовых тортов со звёздочкой ★ из заказов</p>';
   const s=shop();
-  ['title','tagline','phone','tg','channel','orderTo','minDays','ig','vk','city','note'].forEach(k=>{const e=$('#sh_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
+  ['title','tagline','phone','tg','channel','orderTo','minDays','ig','vk','max','city','note'].forEach(k=>{const e=$('#sh_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
   const w=$('#sh_wa');if(w)w.checked=s.wa!==false;
   const pub=(S.settings.menuPublished||'');$('#menuLink').style.display=pub?'':'none';$('#menuLink').innerHTML=pub?`🌐 Меню опубликовано ${new Date(pub).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}: <a href="${esc(menuUrl())}" target="_blank" rel="noopener">${esc(menuUrl())}</a> <button class="ghost mini" data-act="copyMenu">Копировать ссылку</button>`:'';
   hydrate($('#s-lib'));

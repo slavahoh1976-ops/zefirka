@@ -148,6 +148,7 @@ function render(){
   if(ph)c.push(`<a class="cbtn" href="tel:+${ph}">${IC.ph} +${ph.replace(/^(\d)(\d{3})(\d{3})(\d{2})(\d{2})$/,'$1 $2 $3-$4-$5')}</a>`);
   if(s.ig)c.push(`<a class="cbtn" href="https://instagram.com/${esc(String(s.ig).replace(/^@/,''))}" target="_blank" rel="noopener">${IC.ig} Instagram</a>`);
   if(s.vk)c.push(`<a class="cbtn" href="${/^https?:/.test(s.vk)?esc(s.vk):'https://vk.com/'+esc(s.vk)}" target="_blank" rel="noopener">${IC.vk} ВКонтакте</a>`);
+  if(s.max)c.push(`<a class="cbtn" href="${/^https?:/.test(s.max)?esc(s.max):'https://max.ru/'+esc(String(s.max).replace(/^@/,''))}" target="_blank" rel="noopener"><b style="font-size:15px">M</b> MAX</a>`);
   $('#contacts').innerHTML=c.join('');
   const items=D.items||[],cats=['Все',...new Set(items.map(i=>i.cat).filter(Boolean))];
   const list=cat==='Все'?items:items.filter(i=>i.cat===cat);
