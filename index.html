@@ -526,7 +526,7 @@ header{padding-top:env(safe-area-inset-top)}
   <div id="lsMenu" style="display:none">
     <div class="calwrap menuwrap">
       <div class="card">
-        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🍰 Меню-витрина</h2><span class="sp"></span><button class="primary mini" data-act="newMenu">+ позиция</button></div>
+        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🍰 Меню-витрина</h2><span class="sp"></span><button class="ghost mini" data-act="seedMenu">📥 Из канала</button><button class="primary mini" data-act="newMenu">+ позиция</button></div>
         <p class="mute" style="font-size:13px;margin:0 0 8px">Отдельная красивая страница с вашими тортами, ценами и фото. Её ссылку можно отправить клиенту вместо долгой переписки. Клиенты видят только меню, а заказы и контакты клиентов остаются закрытыми.</p>
         <div class="row" style="margin-bottom:10px"><button class="btn" data-act="previewMenu">👁 Предпросмотр</button><button class="primary" id="pubBtn" data-act="publishMenu">🌐 Опубликовать</button></div>
         <div id="menuLink" class="hint on" style="margin-bottom:10px"></div>
@@ -616,7 +616,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.5 · 16.11.2026';
+const APP_VERSION='2.6 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1468,6 +1468,27 @@ function renderMenuEditor(){
   hydrate($('#s-lib'));
 }
 function menuUrl(){const o=(GH&&GH.owner)||'slavahoh1976-ops',r=(GH&&GH.pubRepo)||'zefirka';return `https://${o.toLowerCase()}.github.io/${r}/menu.html`}
+const SEED_MENU=[
+['Шоколадный торт «Шоколадный мусс»','Торты','Шоколадный бисквит, шоколадный мусс, шоколадный ганаш.'],
+['Шоколадный с вишней','Торты','Шоколадный бисквит, вишнёвое конфи, ганаш на молочном шоколаде.'],
+['Черничный торт','Торты','Ванильный бисквит на сливочном масле с лимонной пропиткой, черничное конфи, черничный крем с белым шоколадом, крем-чиз.'],
+['Шоколадный «Маракуйя-клубника»','Торты','Шоколадный бисквит, маракуйя, клубника.'],
+['Торт с «горящей картинкой»','Торты','Ванильный бисквит, крем-чиз, клубника. Съедобная картинка на заказ.'],
+['«Молочная девочка» с клубникой','Торты','Нежный бисквит со сливочным кремом и свежей клубникой.'],
+['«Наполеон» с белым шоколадом','Торты','Классический наполеон с кремом на белом шоколаде.'],
+['Клубничное тирамису','Торты','Нежное тирамису с клубникой.'],
+['Бенто-торт «Не маленькая малинка» (600 г)','Бенто-торты','Ванильный бисквит, малиновый мусс, белый шоколад с какао-маслом.'],
+['Зефир в шляпной коробке','Зефир','Сладкий комплимент: зефир с нежным вкусом в красивой коробке.'],
+['Осенний зефир','Зефир','Тематический зефир на заказ.'],
+['Пончики','Другое','Пончики для поздравления с днём рождения.'],
+['«Орешки»','Другое','Десерт «Орешки».']
+];
+function seedMenu(){
+  const have=new Set(S.menu.map(m=>(m.name||'').toLowerCase()));
+  let n=0;SEED_MENU.forEach(([name,cat,desc],i)=>{if(have.has(name.toLowerCase()))return;put('menu',{id:uid(),name,cat,desc,price:'',unit:cat==='Зефир'||cat==='Бенто-торты'||cat==='Другое'?'шт':'кг',minQty:'',photos:[],visible:false,sort:S.menu.length+1+i});n++});
+  toast(n?`Добавлено ${n} позиций (скрыты). Укажите цену, включите «Показывать клиентам»`:'Все позиции уже есть');
+  if(typeof renderMenuEditor==='function')renderMenuEditor();
+}
 function openMenuItem(m){
   const isNew=!m;m=m?clone(m):{id:uid(),name:'',cat:'Торты',desc:'',price:'',unit:'кг',minQty:'',photos:[],visible:true,sort:S.menu.length+1};
   const recs=[...new Set(S.recipes.filter(r=>r.type!=='syrup').map(r=>r.name))];
@@ -1629,6 +1650,7 @@ document.addEventListener('click',e=>{
   if(a==='repPrev'){rep.m--;if(rep.m<0){rep.m=11;rep.y--}return renderReport()}
   if(a==='repNext'){rep.m++;if(rep.m>11){rep.m=0;rep.y++}return renderReport()}
   if(a==='newMenu')return openMenuItem(null);
+  if(a==='seedMenu')return seedMenu();
   if(a==='pasteReq')return openPasteReq();
   if(a==='updateApp')return updateApp();
   if(a==='previewMenu')return previewMenu();
