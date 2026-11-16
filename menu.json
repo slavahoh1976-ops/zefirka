@@ -1,0 +1,30 @@
+{
+ "v": 1,
+ "updated": "2026-11-16T07:01:36.308Z",
+ "shop": {
+  "title": "Зефирка",
+  "tagline": "Сладости для радости",
+  "phone": "+7 963 721-08-98",
+  "wa": false,
+  "tg": "EkaterinaByrsan",
+  "channel": "https://t.me/zefirkavkus",
+  "orderTo": "tg",
+  "ig": "",
+  "vk": "",
+  "city": "",
+  "note": "Заказ лучше оформить за 3–5 дней. Предоплата 50%."
+ },
+ "items": [
+  {
+   "id": "mwix0kei3oocp",
+   "name": "Шоколадный бисквит",
+   "cat": "Торты",
+   "desc": "",
+   "price": null,
+   "unit": "кг",
+   "minQty": "",
+   "photos": []
+  }
+ ],
+ "gallery": []
+}
