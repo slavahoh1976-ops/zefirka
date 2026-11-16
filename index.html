@@ -338,6 +338,14 @@ header{padding-top:env(safe-area-inset-top)}
   .oc-top{flex-wrap:wrap}.oc-top b{flex:1 1 60%}.oc-top select{order:3;width:100%;margin-top:4px}
   #topFill th:nth-child(4),#topFill td:nth-child(4){display:none}
 }
+
+.upd{border:1px solid var(--line);background:var(--card);border-radius:12px;height:38px;padding:0 10px;cursor:pointer;font-weight:800;font-size:13px;color:var(--pink-d);white-space:nowrap;display:flex;align-items:center;gap:2px;flex-shrink:0}
+.upd .ui{font-size:18px;display:inline-block}
+.upd.new{background:var(--pink);color:var(--onacc);border-color:var(--pink);animation:pulse 2s infinite}
+.upd.spin .ui{animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(227,111,147,.5)}50%{box-shadow:0 0 0 6px rgba(227,111,147,0)}}
+@media (max-width:620px){.upd{height:36px;padding:0 8px;font-size:12px}.upd.new #updTxt{font-size:11px}.sync{max-width:34vw}}
 </style>
 </head>
 <body>
@@ -348,6 +356,7 @@ header{padding-top:env(safe-area-inset-top)}
       <div class="logotxt"><h1>Зефирка</h1><small>заказы · рецепты · клиенты</small></div>
     </div>
     <span class="sync" id="sync">⏳ загрузка…</span>
+    <button class="upd" id="updBtn" data-act="updateApp" title="Обновить программу"><span class="ui">⟳</span><span id="updTxt"></span></button>
     <button class="gear" data-act="settings" title="Настройки">⚙️</button>
   </div>
   <nav id="tabs">
@@ -606,7 +615,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.3 · 16.11.2026';
+const APP_VERSION='2.4 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1215,7 +1224,7 @@ function openSettings(){
       <div class="grid2"><label>Владелец (логин GitHub)<input id="ghO" value="slavahoh1976-ops" autocapitalize="off"></label><label>Закрытый репозиторий<input id="ghR" value="zefirka-data" autocapitalize="off"></label>
       <label class="full">Ключ доступа (github_pat_…)<input id="ghT" type="password" autocomplete="off" autocapitalize="off" placeholder="вставьте ключ"></label></div>
       <div class="row" style="margin-top:8px"><button type="button" class="primary" id="ghOn">Подключить</button><span id="ghMsg" class="mute" style="font-size:13px"></span></div>`}`}`);
-  if($('#reloadApp'))$('#reloadApp').onclick=e=>{e.preventDefault();location.reload()};
+  if($('#reloadApp'))$('#reloadApp').onclick=e=>{e.preventDefault();updateApp()};
   if($('#ghOn'))$('#ghOn').onclick=async()=>{const o=$('#ghO').value,r=$('#ghR').value,t=$('#ghT').value;if(!o||!r||!t){$('#ghMsg').textContent='Заполните все три поля';return}
     $('#ghOn').disabled=true;$('#ghMsg').textContent='Проверяю…';const err=await ghConnect(o,r,t);$('#ghOn').disabled=false;
     if(err){$('#ghMsg').textContent='⚠️ '+err;$('#ghMsg').style.color='#c4405f'}else{closeModal();toast('Синхронизация включена ✓')}};
@@ -1552,6 +1561,28 @@ document.addEventListener('click',e=>{
   else if(t.dataset.tabGo)showTab(t.dataset.tabGo,true);
 });
 
+
+/* ---------- обновление программы ---------- */
+const verShort=v=>String(v).split('·')[0].trim();
+let newVer='';
+function showVer(){const t=$('#updTxt'),b=$('#updBtn');if(!t)return;
+  if(newVer&&newVer!==verShort(APP_VERSION)){b.classList.add('new');t.textContent=' Новая версия '+newVer;b.title='Вышла версия '+newVer+'. Нажмите, чтобы обновить'}
+  else{b.classList.remove('new');t.textContent=' '+verShort(APP_VERSION);b.title='Версия '+verShort(APP_VERSION)+'. Нажмите, чтобы обновить программу'}}
+async function checkNewVersion(){
+  if(!/^https?:/.test(location.protocol)||/claude|anthropic/.test(location.hostname))return;
+  try{const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+    const m=(await r.text()).match(/const APP_VERSION='([^']+)'/);if(m){newVer=verShort(m[1]);showVer()}}catch(e){}}
+async function updateApp(){
+  const b=$('#updBtn');b.disabled=true;$('#updTxt').textContent=' обновляю…';b.classList.add('spin');
+  try{if(GH&&!DB)await Promise.race([ghSync(),new Promise(r=>setTimeout(r,6000))])}catch(e){}
+  try{lsSave()}catch(e){}
+  location.replace(location.pathname+'?r='+Date.now()+(location.hash||''));
+}
+// убираем служебный ?r= из адреса после обновления
+if(/[?&]r=\d+/.test(location.search))try{history.replaceState(history.state,'',location.pathname+location.hash)}catch(e){}
+showVer();setTimeout(checkNewVersion,4000);setInterval(checkNewVersion,15*60*1000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkNewVersion()});
+
 /* ---------- global clicks ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act],[data-day],[data-edit],[data-msg],[data-client],[data-ing],[data-rec]');if(!t)return;
@@ -1566,6 +1597,7 @@ document.addEventListener('click',e=>{
   if(a==='repPrev'){rep.m--;if(rep.m<0){rep.m=11;rep.y--}return renderReport()}
   if(a==='repNext'){rep.m++;if(rep.m>11){rep.m=0;rep.y++}return renderReport()}
   if(a==='newMenu')return openMenuItem(null);
+  if(a==='updateApp')return updateApp();
   if(a==='previewMenu')return previewMenu();
   if(a==='publishMenu')return publishMenu();
   if(a==='copyMenu'){navigator.clipboard.writeText(menuUrl()).then(()=>toast('Ссылка скопирована ✓'),()=>toast(menuUrl()));return}
