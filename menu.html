@@ -91,16 +91,23 @@ const IC={wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 
  ph:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>',
  ig:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>',
  vk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.8 17.5c-5.5 0-8.6-3.8-8.8-10h2.8c.1 4.6 2.1 6.5 3.7 6.9V7.5h2.6v3.9c1.6-.2 3.3-2 3.8-3.9h2.6a7.7 7.7 0 0 1-3.5 5 8 8 0 0 1 4.1 5h-2.9c-.6-1.9-2.1-3.3-4.1-3.5v3.5z"/></svg>'};
-function orderLink(text){const s=D.shop||{},ph=digits(s.phone);
+const DEF_SHOP={title:'Зефирка',tagline:'Сладости для радости',phone:'+7 963 721-08-98',wa:true,tg:'EkaterinaByrsan',channel:'https://t.me/zefirkavkus',orderTo:'tg',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.'};
+const tgNick=v=>String(v||'').trim().replace(/^@|^https?:\/\/t\.me\//g,'').replace(/\/.*$/,'');
+const chUrl=v=>{v=String(v||'').trim();if(!v)return '';if(/^https?:/.test(v))return v;return 'https://t.me/'+v.replace(/^@/,'')};
+function orderLink(text){const s=D.shop||{},ph=digits(s.phone),tg=tgNick(s.tg);
+  if(tg&&s.orderTo!=='wa')return 'https://t.me/'+tg+'?text='+encodeURIComponent(text);
   if(ph&&s.wa!==false)return 'https://wa.me/'+ph+'?text='+encodeURIComponent(text);
-  if(s.tg)return 'https://t.me/'+String(s.tg).replace(/^@|https?:\/\/t\.me\//g,'');
+  if(tg)return 'https://t.me/'+tg+'?text='+encodeURIComponent(text);
   if(ph)return 'tel:+'+ph;return null}
 function render(){
   const s=D.shop||{};document.title=(s.title||'Зефирка')+' — меню тортов и десертов';
   $('#sub').textContent=s.tagline||'';$('#city').textContent=s.city?'📍 '+s.city:'';
-  const ph=digits(s.phone),c=[];
-  if(ph&&s.wa!==false)c.push(`<a class="cbtn main" href="https://wa.me/${ph}" target="_blank" rel="noopener">${IC.wa} WhatsApp</a>`);
-  if(s.tg)c.push(`<a class="cbtn" href="https://t.me/${esc(String(s.tg).replace(/^@|https?:\/\/t\.me\//g,''))}" target="_blank" rel="noopener">${IC.tg} Telegram</a>`);
+  const ph=digits(s.phone),tg=tgNick(s.tg),c=[],tgFirst=tg&&s.orderTo!=='wa';
+  const tgBtn=main=>`<a class="cbtn${main?' main':''}" href="https://t.me/${esc(tg)}?text=${encodeURIComponent('Здравствуйте! Хочу заказать торт.')}" target="_blank" rel="noopener" data-copy="Здравствуйте! Хочу заказать торт.">${IC.tg} Заказать в Telegram</a>`;
+  if(tgFirst)c.push(tgBtn(true));
+  if(ph&&s.wa!==false)c.push(`<a class="cbtn${tgFirst?'':' main'}" href="https://wa.me/${ph}" target="_blank" rel="noopener">${IC.wa} WhatsApp</a>`);
+  if(tg&&!tgFirst)c.push(tgBtn(false));
+  if(s.channel)c.push(`<a class="cbtn" href="${esc(chUrl(s.channel))}" target="_blank" rel="noopener">${IC.tg} Наши работы в Telegram</a>`);
   if(ph)c.push(`<a class="cbtn" href="tel:+${ph}">${IC.ph} +${ph.replace(/^(\d)(\d{3})(\d{3})(\d{2})(\d{2})$/,'$1 $2 $3-$4-$5')}</a>`);
   if(s.ig)c.push(`<a class="cbtn" href="https://instagram.com/${esc(String(s.ig).replace(/^@/,''))}" target="_blank" rel="noopener">${IC.ig} Instagram</a>`);
   if(s.vk)c.push(`<a class="cbtn" href="${/^https?:/.test(s.vk)?esc(s.vk):'https://vk.com/'+esc(s.vk)}" target="_blank" rel="noopener">${IC.vk} ВКонтакте</a>`);
@@ -114,23 +121,24 @@ function render(){
     h+=`<div class="grid">${list.map(i=>{const ps=(i.photos||[]).filter(p=>!preview||PD[p]);const link=orderLink(`Здравствуйте! Хочу заказать «${i.name}».`);
       return `<article class="item"><div class="gal">${ps.length?`<div class="sl">${ps.map(p=>`<img src="${src(p)}" data-big="${esc(p)}" alt="${esc(i.name)}" loading="lazy">`).join('')}</div>${ps.length>1?`<div class="dots">${ps.map((_,k)=>`<i class="${k?'':'on'}"></i>`).join('')}</div>`:''}`:'<div class="ph0">🍰</div>'}${i.cat?`<span class="cat">${esc(i.cat)}</span>`:''}</div>
       <div class="body"><h3>${esc(i.name)}</h3>${i.desc?`<p class="desc">${esc(i.desc)}</p>`:'<p class="desc"></p>'}
-      <div class="pr"><div>${i.price?`<div class="price">${rub(i.price)} <small>/ ${esc(i.unit||'кг')}</small></div>`:''}${i.minQty?`<div class="min">${esc(i.minQty)}</div>`:''}</div>${link?`<a class="order" href="${link}" target="_blank" rel="noopener">Заказать</a>`:''}</div></div></article>`}).join('')}</div>`;
-  }else h+='<div class="empty">Меню скоро появится 💗</div>';
+      <div class="pr"><div>${i.price?`<div class="price">${rub(i.price)} <small>/ ${esc(i.unit||'кг')}</small></div>`:''}${i.minQty?`<div class="min">${esc(i.minQty)}</div>`:''}</div>${link?`<a class="order" href="${link}" target="_blank" rel="noopener" data-copy="${esc(`Здравствуйте! Хочу заказать «${i.name}».`)}">Заказать</a>`:''}</div></div></article>`}).join('')}</div>`;
+  }else h+=`<div class="empty">Меню скоро появится 💗${tgNick(s.tg)?`<br><br>А пока напишите нам в Telegram, и мы всё расскажем`:''}</div>`;
   const g=(D.gallery||[]).filter(p=>!preview||PD[p]);
-  if(g.length)h+=`<div class="orn"><h2>Наши работы</h2></div><div class="works">${g.map(p=>`<img src="${src(p)}" data-big="${esc(p)}" alt="Торт Зефирки" loading="lazy">`).join('')}</div>`;
+  if(g.length||s.channel)h+=`<div class="orn"><h2>Наши работы</h2></div>${g.length?`<div class="works">${g.map(p=>`<img src="${src(p)}" data-big="${esc(p)}" alt="Торт Зефирки" loading="lazy">`).join('')}</div>`:''}${s.channel?`<div style="text-align:center;margin-top:16px"><a class="cbtn main" href="${esc(chUrl(s.channel))}" target="_blank" rel="noopener">${IC.tg} Больше работ в нашем Telegram-канале</a></div>`:''}`;
   if(s.note)h+=`<div class="orn"><h2>Как заказать</h2></div><div class="note">${esc(s.note)}</div>`;
   $('#main').innerHTML=h;
   $('#foot').innerHTML=`${esc(s.title||'Зефирка')} · ${esc(s.tagline||'')}${D.updated?`<br>Меню обновлено ${new Date(D.updated).toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}`:''}`;
   document.querySelectorAll('.sl').forEach(sl=>sl.addEventListener('scroll',()=>{const k=Math.round(sl.scrollLeft/sl.clientWidth);sl.parentNode.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j===k))},{passive:true}));
 }
-document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(c){cat=c.dataset.cat;render();return}
+document.addEventListener('click',e=>{const cp=e.target.closest('[data-copy]');if(cp&&navigator.clipboard){navigator.clipboard.writeText(cp.dataset.copy).catch(()=>{})}
+  const c=e.target.closest('[data-cat]');if(c){cat=c.dataset.cat;render();return}
   const im=e.target.closest('img[data-big]');if(im){$('#lb').innerHTML=`<img src="${im.src}" alt=""><button class="lbx" aria-label="Закрыть">×</button>`;$('#lb').classList.add('on');return}
   if(e.target.closest('#lb')){$('#lb').classList.remove('on');$('#lb').innerHTML=''}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#lb').classList.remove('on')});
 (async()=>{
-  if(preview){try{const j=JSON.parse(localStorage.getItem('zefirka-menu-preview')||'null');if(j){D=j;PD=j.photoData||{};$('#pvbar').innerHTML='<div class="pvbar">Предпросмотр: так меню увидят клиенты после публикации</div>';render();return}}catch(e){}}
-  try{const r=await fetch('menu.json?_='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;D=await r.json();render()}
-  catch(e){D={shop:{title:'Зефирка',tagline:'Сладости для радости'},items:[]};render()}
+  if(preview){try{const j=JSON.parse(localStorage.getItem('zefirka-menu-preview')||'null');if(j){D=j;D.shop={...DEF_SHOP,...(D.shop||{})};PD=j.photoData||{};$('#pvbar').innerHTML='<div class="pvbar">Предпросмотр: так меню увидят клиенты после публикации</div>';render();return}}catch(e){}}
+  try{const r=await fetch('menu.json?_='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;D=await r.json();D.shop={...DEF_SHOP,...(D.shop||{})};render()}
+  catch(e){D={shop:{...DEF_SHOP},items:[]};render()}
 })();
 </script>
 </body>
