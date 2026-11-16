@@ -389,11 +389,11 @@ header{padding-top:env(safe-area-inset-top)}
     </div>
     <div>
       <div class="card todocard">
-        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🔔 Что сделать</h2><span class="sp"></span><button class="ghost mini" data-act="weekIcs" title="Добавить заказы на 2 недели в календарь телефона с напоминаниями">📅 Всё в календарь</button></div>
+        <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🔔 Что сделать</h2><span class="sp"></span><button class="btn mini" data-act="pasteReq">📥 Вставить заявку</button><button class="ghost mini" data-act="weekIcs" title="Добавить заказы на 2 недели в календарь телефона с напоминаниями">📅 Всё в календарь</button></div>
         <div id="todoList"></div>
       </div>
       <div class="card" style="margin-top:14px">
-        <div class="row" style="margin-bottom:10px"><h2 id="dayTitle" style="margin:0"></h2><span class="sp"></span><button class="ghost mini" data-act="newOrder">+ на этот день</button></div>
+        <div class="row" style="margin-bottom:10px"><h2 id="dayTitle" style="margin:0"></h2><span class="sp"></span><button class="btn mini" data-act="pasteReq" title="Создать заказ из заявки клиента">📥 Заявка</button><button class="ghost mini" data-act="newOrder">+ на этот день</button></div>
         <div id="dayList"></div>
       </div>
       <div class="card" style="margin-top:14px">
@@ -544,6 +544,7 @@ header{padding-top:env(safe-area-inset-top)}
             <label class="full">Telegram-канал с примерами<input id="sh_channel" autocapitalize="off" placeholder="https://t.me/…"></label>
             <label>Instagram (ник)<input id="sh_ig" autocapitalize="off"></label>
             <label>ВКонтакте (ссылка или ник)<input id="sh_vk" autocapitalize="off"></label><label>Город / район<input id="sh_city"></label>
+            <label class="full">За сколько дней минимум можно заказать (в форме для клиентов)<input id="sh_minDays" inputmode="numeric"></label>
             <label class="full">Условия заказа<textarea id="sh_note" rows="2"></textarea></label>
           </div>
         </div>
@@ -615,7 +616,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.4 · 16.11.2026';
+const APP_VERSION='2.5 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1449,7 +1450,7 @@ function expFormSync(){const km=$('#exCat').value==='km';$('#exAmtL').firstChild
 
 /* ================= МЕНЮ-ВИТРИНА ================= */
 const MENU_CATS=['Торты','Бенто-торты','Муссовые торты','Капкейки','Зефир','Пирожные','Наборы','Другое'];
-const SHOP_DEF={title:'Зефирка',tagline:'Сладости для радости',phone:'+7 963 721-08-98',wa:true,tg:'EkaterinaByrsan',channel:'https://t.me/zefirkavkus',orderTo:'tg',ig:'',vk:'',city:'',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.'};
+const SHOP_DEF={title:'Зефирка',tagline:'Сладости для радости',phone:'+7 963 721-08-98',wa:true,tg:'EkaterinaByrsan',channel:'https://t.me/zefirkavkus',orderTo:'tg',ig:'',vk:'',city:'',note:'Заказ лучше оформить за 3–5 дней. Предоплата 50%.',minDays:3};
 const shop=()=>{const s={...SHOP_DEF};for(const[k,v]of Object.entries(S.settings.shop||{}))if(v!==''&&v!=null)s[k]=v;return s};
 function renderMenuEditor(){
   const ms=[...S.menu].sort((a,b)=>(num(a.sort)-num(b.sort))||(a.name||'').localeCompare(b.name||''));
@@ -1461,7 +1462,7 @@ function renderMenuEditor(){
   const pf=portfolioIds();
   $('#portGrid').innerHTML=pf.length?pf.map(id=>`<div class="ph"><img data-ph="${id}" data-view="${id}" alt=""></div>`).join(''):'<p class="empty-note">Сюда попадают фото готовых тортов со звёздочкой ★ из заказов</p>';
   const s=shop();
-  ['title','tagline','phone','tg','channel','orderTo','ig','vk','city','note'].forEach(k=>{const e=$('#sh_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
+  ['title','tagline','phone','tg','channel','orderTo','minDays','ig','vk','city','note'].forEach(k=>{const e=$('#sh_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
   const w=$('#sh_wa');if(w)w.checked=s.wa!==false;
   const pub=(S.settings.menuPublished||'');$('#menuLink').style.display=pub?'':'none';$('#menuLink').innerHTML=pub?`🌐 Меню опубликовано ${new Date(pub).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}: <a href="${esc(menuUrl())}" target="_blank" rel="noopener">${esc(menuUrl())}</a> <button class="ghost mini" data-act="copyMenu">Копировать ссылку</button>`:'';
   hydrate($('#s-lib'));
@@ -1583,6 +1584,37 @@ if(/[?&]r=\d+/.test(location.search))try{history.replaceState(history.state,'',l
 showVer();setTimeout(checkNewVersion,4000);setInterval(checkNewVersion,15*60*1000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkNewVersion()});
 
+
+/* ---------- заявка из Telegram → заказ ---------- */
+function parseRequest(t){
+  t=String(t||'');const get=k=>{const m=t.match(new RegExp('^[\\s>*_]*'+k+'\\s*:\\s*(.+)$','mi'));return m?m[1].trim():''};
+  const o={status:'new',delivery:'pickup'};
+  o.clientName=get('Имя');const ph=normPhone(get('Телефон'));if(ph.length>=11)o.clientPhone=ph;
+  const d=get('Дата'),dm=d.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/),tm=d.match(/(\d{1,2}):(\d{2})/);
+  if(dm)o.date=dm[3]+'-'+pad(+dm[2])+'-'+pad(+dm[1]);if(tm)o.time=pad(+tm[1])+':'+tm[2];
+  const item=get('Изделие');o.title=item&&!/посоветуйте|другое/i.test(item)?item:'Торт';
+  const q=get('Количество');if(q)o.title+=' × '+q;
+  o.filling=get('Начинка');
+  const w=get('Вес'),wm=w.match(/([\d.,]+)\s*кг/);if(wm)o.weight=wm[1].replace(',','.');
+  const g=get('Получение');if(/доставк/i.test(g)){o.delivery='delivery';o.address=g.replace(/^\s*доставка\s*[—–-]?\s*/i,'')}
+  o.decor=get('Оформление');
+  const notes=[],ins=get('Надпись'),wi=get('Пожелания'),gs=(w.match(/гост\D*(\d+)/i)||get('Гостей').match(/(\d+)/)||[])[1];
+  if(ins)notes.push('Надпись: '+ins);if(gs)notes.push('Гостей: '+gs);if(wi)notes.push(wi);if(/фото-пример/i.test(t))notes.push('📷 Клиент пришлёт фото-пример');
+  o.notes=notes.join('\n');
+  const pr=get('Ориентировочно').replace(/[^\d]/g,'');if(pr)o.price=pr;
+  return o;
+}
+function openPasteReq(){
+  modal(`<h3>📥 Заказ из заявки</h3>
+    <p class="mute" style="font-size:13.5px;margin:0 0 8px">Скопируйте заявку клиента из Telegram или WhatsApp (нажмите и удерживайте сообщение → «Копировать»), вставьте сюда и нажмите «Создать заказ». Поля заполнятся сами, останется проверить и сохранить.</p>
+    <textarea id="reqT" rows="10" placeholder="🎂 Заявка на заказ — Зефирка&#10;Имя: …&#10;Телефон: …&#10;Дата: …"></textarea>
+    <div class="btns" style="margin-top:10px">${navigator.clipboard&&navigator.clipboard.readText?'<button class="btn" id="reqPaste">📋 Вставить из буфера</button>':''}<span class="sp"></span><button class="primary" id="reqGo">Создать заказ</button></div>`);
+  if($('#reqPaste'))$('#reqPaste').onclick=async()=>{try{$('#reqT').value=await navigator.clipboard.readText()}catch(e){toast('Вставьте вручную: удерживайте поле → «Вставить»')}};
+  $('#reqGo').onclick=()=>{const t=$('#reqT').value;if(!/Имя\s*:|Телефон\s*:|Дата\s*:/i.test(t)){toast('Не похоже на заявку: нет строк «Имя:», «Телефон:», «Дата:»');return}
+    const o=parseRequest(t);if(o.date){const d=dparse(o.date);cal.y=d.getFullYear();cal.m=d.getMonth();cal.sel=o.date}
+    openOrder(null,o);toast('Заявка разобрана, проверьте и нажмите «Сохранить»')};
+}
+
 /* ---------- global clicks ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act],[data-day],[data-edit],[data-msg],[data-client],[data-ing],[data-rec]');if(!t)return;
@@ -1597,6 +1629,7 @@ document.addEventListener('click',e=>{
   if(a==='repPrev'){rep.m--;if(rep.m<0){rep.m=11;rep.y--}return renderReport()}
   if(a==='repNext'){rep.m++;if(rep.m>11){rep.m=0;rep.y++}return renderReport()}
   if(a==='newMenu')return openMenuItem(null);
+  if(a==='pasteReq')return openPasteReq();
   if(a==='updateApp')return updateApp();
   if(a==='previewMenu')return previewMenu();
   if(a==='publishMenu')return publishMenu();
