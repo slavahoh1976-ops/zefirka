@@ -613,10 +613,10 @@ header{padding-top:env(safe-area-inset-top)}
 <div class="toast" id="toast"></div>
 <div class="pv" id="pv"></div>
 <datalist id="fillList"></datalist>
-<input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
+<input type="file" id="vcfIn" accept=".vcf,.vcard,text/vcard,text/x-vcard,text/directory,text/plain,*/*" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.9 · 16.11.2026';
+const APP_VERSION='3.0 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1291,8 +1291,7 @@ async function pickOne(formId){
   if(hasPicker()){
     try{const r=await navigator.contacts.select(['name','tel'],{multiple:false});if(!r||!r.length)return;
       const c=r[0],tel=(c.tel||[]).map(normPhone).find(x=>x.length>=11);if(!tel)return toast('У контакта нет номера телефона');
-      fill({name:(c.name||[])[0]||'',phone:tel})}catch(e){toast('Доступ к контактам не разрешён')}
-    return}
+      fill({name:(c.name||[])[0]||'',phone:tel});return}catch(e){if(e&&e.name==='AbortError')return;toast('Телефонная книга недоступна, выберите файл контакта')}}
   const inp=$('#vcfIn');inp.multiple=false;inp.value='';
   inp.onchange=async()=>{const cs=await readVcfFiles(inp.files);if(cs[0])fill(cs[0]);else toast('В файле нет контактов с номером')};
   toast('Выберите визитку контакта (.vcf)');inp.click();
@@ -1302,7 +1301,7 @@ async function importContacts(){
   if(hasPicker()){
     try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});if(!r||!r.length)return;
       const cs=r.map(c=>({name:(c.name||[])[0]||'',phone:((c.tel||[]).map(normPhone).find(x=>x.length>=11))||''})).filter(c=>c.phone);
-      return showImport(cs)}catch(e){return toast('Доступ к контактам не разрешён')}
+      return showImport(cs)}catch(e){if(e&&e.name==='AbortError')return;toast('Телефонная книга недоступна, выберите файл контакта')}
   }
   modal(`<h3>📇 Клиенты из контактов</h3>
     <p style="margin:0 0 10px">На этом устройстве браузер не умеет сам открывать телефонную книгу${/iPhone|iPad/.test(navigator.userAgent)?' (на iPhone Safari это запрещает)':''}. Зато можно передать контакты файлом-визиткой:</p>
