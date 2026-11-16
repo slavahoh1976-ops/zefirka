@@ -27,6 +27,8 @@ html,body{margin:0}
 body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.4;background-image:var(--bgimg);background-attachment:fixed}
 h1,h2,h3,.big,.price b,.stat b{font-family:var(--fh)}
 button,input,select,textarea{font:inherit;color:inherit}
+button,a,label,select,[data-day],[data-tab]{touch-action:manipulation;-webkit-tap-highlight-color:rgba(227,111,147,.15)}
+nav button *{pointer-events:none}
 header{position:sticky;top:0;z-index:20;background:var(--hdr);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .hwrap{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px}
 .logo{display:flex;align-items:center;gap:10px}
@@ -166,8 +168,8 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--pink-l)}
 .hint{font-size:13px;background:var(--mint-l);color:#2f6f5f;border-radius:10px;padding:7px 10px;display:none}
 .hint.on{display:block}
 #cfm .md{max-width:380px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;transition:.25s;z-index:60;opacity:0}
-.toast.on{transform:translateX(-50%);opacity:1}
+.toast{pointer-events:none;visibility:hidden;position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;transition:.25s;z-index:60;opacity:0}
+.toast.on{visibility:visible;transform:translateX(-50%);opacity:1}
 .search{max-width:300px}
 .phrow{display:flex;gap:6px}.phrow input{flex:1}.cbtn{padding:6px 10px;font-size:18px;flex-shrink:0}
 .ck{display:flex;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line2);font-weight:600;color:var(--ink);font-size:14px;flex-direction:row}.ck input{width:20px;height:20px;flex-shrink:0}
@@ -475,6 +477,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
+const APP_VERSION='1.5 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1053,6 +1056,7 @@ function openSettings(){
     <p class="mute" style="font-size:13px;margin:0 0 8px">${DB?'Данные хранятся в облаке.':'Данные хранятся только в этом браузере на этом телефоне.'} Раз в неделю сохраняйте копию в файл, чтобы ничего не потерять при очистке браузера или смене телефона.</p>
     <div class="row"><button type="button" class="btn" data-act="export">Сохранить копию</button><label class="btn" style="flex-direction:row;color:var(--ink);font-size:15px;cursor:pointer">Загрузить из файла<input type="file" id="impF" accept=".json,application/json" style="display:none"></label></div>
     <div id="expBox"></div>
+    <p class="mute" style="font-size:12px;margin:16px 0 0;text-align:center">Зефирка, версия ${APP_VERSION} · <a href="#" id="reloadApp" style="color:var(--pink-d)">обновить</a></p>
     ${DB?'':`<h3 style="font-family:var(--fb);font-size:15px;margin-top:18px">🔄 Синхронизация ПК и телефона</h3>
     ${GH?`<div class="hint on">Подключено к <b>${esc(GH.owner)}/${esc(GH.repo)}</b>. ${ghLast?'Последняя синхронизация в '+pad(ghLast.getHours())+':'+pad(ghLast.getMinutes()):''}</div>
       <div class="row" style="margin-top:8px"><button type="button" class="btn" id="ghNow">Синхронизировать сейчас</button><button type="button" class="danger" id="ghOff">Отключить на этом устройстве</button></div>`
@@ -1060,6 +1064,7 @@ function openSettings(){
       <div class="grid2"><label>Владелец (логин GitHub)<input id="ghO" value="slavahoh1976-ops" autocapitalize="off"></label><label>Закрытый репозиторий<input id="ghR" value="zefirka-data" autocapitalize="off"></label>
       <label class="full">Ключ доступа (github_pat_…)<input id="ghT" type="password" autocomplete="off" autocapitalize="off" placeholder="вставьте ключ"></label></div>
       <div class="row" style="margin-top:8px"><button type="button" class="primary" id="ghOn">Подключить</button><span id="ghMsg" class="mute" style="font-size:13px"></span></div>`}`}`);
+  if($('#reloadApp'))$('#reloadApp').onclick=e=>{e.preventDefault();location.reload()};
   if($('#ghOn'))$('#ghOn').onclick=async()=>{const o=$('#ghO').value,r=$('#ghR').value,t=$('#ghT').value;if(!o||!r||!t){$('#ghMsg').textContent='Заполните все три поля';return}
     $('#ghOn').disabled=true;$('#ghMsg').textContent='Проверяю…';const err=await ghConnect(o,r,t);$('#ghOn').disabled=false;
     if(err){$('#ghMsg').textContent='⚠️ '+err;$('#ghMsg').style.color='#c4405f'}else{closeModal();toast('Синхронизация включена ✓')}};
