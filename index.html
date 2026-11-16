@@ -606,7 +606,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.2 · 16.11.2026';
+const APP_VERSION='2.3 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1494,10 +1494,17 @@ function menuPayload(){
     .map(m=>({id:m.id,name:m.name,cat:m.cat||'',desc:m.desc||'',price:num(m.price)||null,unit:m.unit||'кг',minQty:m.minQty||'',photos:m.photos||[]}));
   return{v:1,updated:new Date().toISOString(),shop:shop(),items,gallery:portfolioIds().slice(0,30)};
 }
-async function previewMenu(){
+async function savePreview(){
   const p=menuPayload(),data={};
   for(const id of new Set([...p.items.flatMap(i=>i.photos.slice(0,3)),...p.gallery.slice(0,12)])){const u=await phGet(id);if(u)data[id]=u}
   try{localStorage.setItem('zefirka-menu-preview',JSON.stringify({...p,photoData:data}))}catch(e){try{localStorage.setItem('zefirka-menu-preview',JSON.stringify({...p,photoData:{}}))}catch(_){}}
+}
+// живой предпросмотр: если черновик уже открывали, обновляем его при каждом изменении меню
+let pvSig='',pvTimer=null;
+function syncPreview(){let has=false;try{has=!!localStorage.getItem('zefirka-menu-preview')}catch(e){}if(!has)return;
+  const p=menuPayload();delete p.updated;const sig=JSON.stringify(p);if(sig===pvSig)return;pvSig=sig;clearTimeout(pvTimer);pvTimer=setTimeout(savePreview,400)}
+async function previewMenu(){
+  await savePreview();
   const w=window.open('menu.html?preview=1','_blank');if(!w)location.href='menu.html?preview=1';
 }
 function pubFetch(path,opt={}){return fetch('https://api.github.com/repos/'+encodeURIComponent(GH.owner)+'/'+encodeURIComponent(GH.pubRepo||'zefirka')+path,{cache:'no-store',...opt,headers:{Authorization:'Bearer '+GH.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}})}
@@ -1591,6 +1598,7 @@ document.addEventListener('change',e=>{const id=e.target.dataset.status;if(id){c
 /* ---------- render ---------- */
 function renderAll(){
   setTimeout(()=>hydrate(),0);
+  try{syncPreview()}catch(e){}
   try{renderTodo();renderReport();if($('#lsMenu').style.display!=='none')renderMenuEditor()}catch(e){console.error(e)}
   renderCal();renderDay();renderClients();renderLib();fillDatalist();fillCalcDefaults();
   const had=calc.comps.length;ensureComps();

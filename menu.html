@@ -83,6 +83,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rub=n=>Math.round(n||0).toLocaleString('ru-RU')+' ₽';
 const preview=new URLSearchParams(location.search).has('preview');
+let pvRaw='';
+function loadPreview(){try{const raw=localStorage.getItem('zefirka-menu-preview')||'';if(!raw)return false;if(raw===pvRaw)return true;pvRaw=raw;const j=JSON.parse(raw);D=j;D.shop={...DEF_SHOP,...(D.shop||{})};PD=j.photoData||{};render();return true}catch(e){return false}}
 let D=null,PD={},cat='Все';
 const src=id=>preview?(PD[id]||''):'menu/'+encodeURIComponent(id)+'.jpg';
 const digits=p=>{let d=String(p||'').replace(/\D/g,'');if(d.length===11&&d[0]==='8')d='7'+d.slice(1);if(d.length===10)d='7'+d;return d};
@@ -136,7 +138,12 @@ document.addEventListener('click',e=>{const cp=e.target.closest('[data-copy]');i
   if(e.target.closest('#lb')){$('#lb').classList.remove('on');$('#lb').innerHTML=''}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#lb').classList.remove('on')});
 (async()=>{
-  if(preview){try{const j=JSON.parse(localStorage.getItem('zefirka-menu-preview')||'null');if(j){D=j;D.shop={...DEF_SHOP,...(D.shop||{})};PD=j.photoData||{};$('#pvbar').innerHTML='<div class="pvbar">Предпросмотр: так меню увидят клиенты после публикации</div>';render();return}}catch(e){}}
+  if(preview&&loadPreview()){
+    $('#pvbar').innerHTML='<div class="pvbar">👁 Черновик меню, обновляется сам при изменениях в программе. Клиенты увидят его после «🌐 Опубликовать».<br><a href="menu.html" style="color:#fff;font-weight:700">Открыть меню, как его видят клиенты →</a></div>';
+    window.addEventListener('storage',e=>{if(e.key==='zefirka-menu-preview')loadPreview()});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadPreview()});
+    setInterval(loadPreview,3000);
+    return}
   try{const r=await fetch('menu.json?_='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;D=await r.json();D.shop={...DEF_SHOP,...(D.shop||{})};render()}
   catch(e){D={shop:{...DEF_SHOP},items:[]};render()}
 })();
