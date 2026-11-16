@@ -134,6 +134,15 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--pink-l)}
 .ir .imeta{grid-column:1/-1;font-size:11.5px;color:var(--mute);margin-top:-2px}
 .ir.ihead{font-size:12px;color:var(--mute);font-weight:800;border-bottom:1px solid var(--line);padding-top:0}
 .ir.ihead .num{text-align:right}
+.pricewrap{grid-template-columns:1.6fr 1fr}
+.libwrap>*,.calwrap>*,.calcwrap>*{min-width:0}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:4px;scrollbar-width:none}
+.chipb{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer;color:var(--ink)}
+.chipb.on{background:var(--pink);border-color:var(--pink);color:var(--onacc)}
+.cathead{font-weight:800;font-size:13px;color:var(--pink-d);margin:12px 0 2px}
+.ir .iprice{font-weight:800}
+.pup{color:#c4405f;font-weight:800}.pdown{color:var(--mint);font-weight:800}.stale{color:var(--warn)}
+.impact{position:relative;background:var(--warn-l);border-radius:12px;padding:8px 30px 8px 12px;font-size:13px;margin-bottom:10px;line-height:1.5}
 .libwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .rc{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;cursor:pointer;background:var(--field)}
 .rc:hover{border-color:var(--pink)}
@@ -279,7 +288,8 @@ header{padding-top:env(safe-area-inset-top)}
   <nav id="tabs">
     <button data-tab="cal" class="on"><span class="ic">📅</span> Заказы</button>
     <button data-tab="calc"><span class="ic">🧮</span> Расчёт</button>
-    <button data-tab="lib"><span class="ic">🥚</span> Рецепты</button>
+    <button data-tab="price"><span class="ic">🛒</span> Продукты</button>
+    <button data-tab="lib"><span class="ic">📖</span> Рецепты</button>
     <button data-tab="cli"><span class="ic">👩</span> Клиенты</button>
     <button data-tab="ideas"><span class="ic">💡</span> Идеи</button>
   </nav>
@@ -405,20 +415,32 @@ header{padding-top:env(safe-area-inset-top)}
 </section>
 
 <!-- LIBRARY -->
-<section id="s-lib">
-  <div id="libEmpty"></div>
-  <div class="libwrap">
+<section id="s-price">
+  <div id="priceEmpty"></div>
+  <div class="libwrap pricewrap">
     <div class="card">
-      <div class="row" style="margin-bottom:8px"><h2 style="margin:0">🥚 Продукты</h2><span class="sp"></span><button class="primary mini" data-act="newIng">+ продукт</button></div>
-      <p class="mute" style="font-size:13px;margin:0 0 8px">Правьте прямо в таблице: фасовку и цену пишите как в чеке. После изменения себестоимость всех рецептов и калькулятора пересчитывается сама. «⋯» открывает подробности: вес 1 шт и удаление.</p>
+      <div class="row" style="margin-bottom:6px"><h2 style="margin:0">🛒 Продукты и цены</h2><span class="sp"></span><button class="primary mini" data-act="newIng">+ продукт</button></div>
+      <p class="mute" style="font-size:13px;margin:0 0 6px">Вбивайте цены прямо в таблицу: фасовку и цену как в чеке. Себестоимость всех рецептов и калькулятора пересчитывается сразу. Старая цена запоминается, рядом видно, на сколько она выросла.</p>
+      <div id="priceStat" style="font-size:13px;margin-bottom:8px"></div>
+      <div id="priceImpact"></div>
       <input id="ingSearch" placeholder="🔍 Найти продукт" style="margin-bottom:8px">
+      <div class="chips" id="priceChips"></div>
       <div id="ingList"></div>
     </div>
     <div class="card">
-      <div class="row" style="margin-bottom:8px"><h2 style="margin:0">📖 Рецепты-полуфабрикаты</h2><span class="sp"></span><button class="primary mini" data-act="newRec">+ рецепт</button></div>
-      <p class="mute" style="font-size:13px;margin:0 0 8px">Бисквиты, кремы, начинки и пропитки по отдельности. Из них собирается торт в калькуляторе.</p>
-      <div id="recList"></div>
+      <h2>🧾 Себестоимость рецептов сейчас</h2>
+      <p class="mute" style="font-size:13px;margin:0 0 8px">Обновляется сама при каждом изменении цены.</p>
+      <div id="recCostMini"></div>
     </div>
+  </div>
+</section>
+
+<section id="s-lib">
+  <div id="libEmpty"></div>
+  <div class="card">
+    <div class="row" style="margin-bottom:8px"><h2 style="margin:0">📖 Рецепты-полуфабрикаты</h2><span class="sp"></span><button class="primary mini" data-act="newRec">+ рецепт</button></div>
+    <p class="mute" style="font-size:13px;margin:0 0 8px">Бисквиты, кремы, начинки и пропитки по отдельности: из каких продуктов и сколько граммов. Из них собирается торт в калькуляторе. Цены продуктов берутся из вкладки «🛒 Продукты».</p>
+    <div id="recList"></div>
   </div>
 </section>
 
@@ -760,42 +782,85 @@ function recCost(r){return sum(r.items||[],it=>{const i=ingById(it.ing);return i
 const recPerG=r=>{const y=recYield(r);return y>0?recCost(r)/y:0};
 const unitLbl=u=>u==='шт'?'10 шт':u==='мл'?'л':'кг';
 const perBig=i=>unitPrice(i)*(i.unit==='шт'?10:1000);
+const CATS={milk:'🥛 Молочное',eggfat:'🥚 Яйца и масло',dry:'🌾 Мука, сахар, сухое',choc:'🍫 Шоколад и какао',fruit:'🍓 Ягоды и фрукты',deco:'✨ Добавки и декор',pack:'📦 Упаковка',other:'🧺 Другое'};
+function guessCat(n){n=(n||'').toLowerCase();
+  if(/яйц|яйцо|масло|маргарин|жир/.test(n))return'eggfat';
+  if(/слив|молок|сыр|творог|сметан|йогурт|маскарпоне|сгущ|кефир/.test(n))return'milk';
+  if(/мук|сахар|пудр|крахмал|разрыхл|сод|соль|орех|миндал|овсян|манк|ванил/.test(n))return'dry';
+  if(/шокол|какао|ганаш|глазур/.test(n))return'choc';
+  if(/ягод|клубн|малин|вишн|черник|банан|фрукт|пюре|лимон|апельсин|манго|маракуй|смород/.test(n))return'fruit';
+  if(/краситель|мастик|топпер|посыпк|желатин|агар|пектин|ароматиз|сироп/.test(n))return'deco';
+  if(/короб|подлож|упаков|лента|контейн|пакет/.test(n))return'pack';
+  return'other'}
+const catOf=i=>i.cat&&CATS[i.cat]?i.cat:guessCat(i.name);
 function ingPk(i){const p=perBig(i);return p?`<b>${rub(p)}</b><small>за ${unitLbl(i.unit)}</small>`:'<small class="mute">—</small>'}
 function ingUsage(id){return S.recipes.filter(r=>(r.items||[]).some(x=>x.ing===id)).length}
+const STALE_DAYS=45;
+function ingMeta(i){
+  const u=ingUsage(i.id),d=i.priceTs?new Date(i.priceTs):null,parts=[];
+  const h=(i.history||[]).slice(-1)[0];
+  if(h){const prev=num(h.size)>0?num(h.price)/num(h.size):0,cur=unitPrice(i);
+    if(prev&&cur){const pc=Math.round((cur/prev-1)*100);parts.push(`было ${rub(num(h.price))}${num(h.size)!==num(i.packSize)?' за '+fx(num(h.size))+' '+esc(i.unit):''} <b class="${pc>0?'pup':pc<0?'pdown':''}">${pc>0?'▲ +'+pc:pc<0?'▼ '+pc:'±0'}%</b>`)}}
+  if(d){const days=Math.floor((Date.now()-d)/864e5),txt=`цена от ${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)}`;parts.push(days>STALE_DAYS?`<span class="stale">⚠️ ${txt}, проверьте</span>`:txt)}
+  else parts.push('<span class="stale">цена не проверялась</span>');
+  parts.push(u?`в ${u} рецепт${u===1?'е':'ах'}`:'не используется');
+  return parts.join(' · ');
+}
+let priceFilter='all';
 function renderIngTable(ings){
   const box=$('#ingList');
   // пока человек печатает в таблице — не перерисовываем строки, только цифры
-  if(box.contains(document.activeElement)&&box.querySelectorAll('.ir[data-iid]').length===ings.length&&!box.dataset.force){
+  if(box.contains(document.activeElement)&&box.querySelectorAll('.ir[data-iid]').length&&!box.dataset.force){
     ings.forEach(i=>{const pk=box.querySelector(`.ir[data-iid="${i.id}"] .pk`);if(pk)pk.innerHTML=ingPk(i)});return}
   const q=($('#ingSearch')&&$('#ingSearch').value||'').toLowerCase().trim();
-  const list=q?ings.filter(i=>(i.name||'').toLowerCase().includes(q)):ings;
+  const stale=ings.filter(i=>!i.priceTs||Date.now()-i.priceTs>STALE_DAYS*864e5);
+  // фильтры-чипсы
+  const used=[...new Set(ings.map(catOf))];
+  $('#priceChips').innerHTML=ings.length?[['all','Все ('+ings.length+')'],...(stale.length?[['stale','⚠️ Проверить ('+stale.length+')']]:[]),...Object.keys(CATS).filter(k=>used.includes(k)).map(k=>[k,CATS[k]])].map(([k,t])=>`<button class="chipb${priceFilter===k?' on':''}" data-pf="${k}">${t}</button>`).join(''):'';
+  let list=ings;
+  if(priceFilter==='stale')list=stale;else if(priceFilter!=='all')list=ings.filter(i=>catOf(i)===priceFilter);
+  if(q)list=list.filter(i=>(i.name||'').toLowerCase().includes(q));
+  const groups=Object.keys(CATS).map(k=>[k,list.filter(i=>catOf(i)===k)]).filter(g=>g[1].length);
   box.innerHTML=ings.length?`<div class="ir ihead"><span>Продукт</span><span>Фасовка</span><span>Ед.</span><span>Цена, ₽</span><span class="num">Выходит</span><span></span></div>`+
-    list.map(i=>{const u=ingUsage(i.id),d=i.priceTs?new Date(i.priceTs):null;return `<div class="ir" data-iid="${i.id}">
+    groups.map(([k,arr])=>`<div class="cathead">${CATS[k]}</div>`+arr.map(i=>`<div class="ir" data-iid="${i.id}">
       <input class="iname" data-f="name" value="${esc(i.name)}" placeholder="Название" aria-label="Название">
       <input data-f="packSize" inputmode="decimal" value="${esc(i.packSize)}" placeholder="1000" aria-label="Фасовка">
       <select data-f="unit" aria-label="Единица">${['г','мл','шт'].map(x=>`<option${x===i.unit?' selected':''}>${x}</option>`).join('')}</select>
-      <input data-f="packPrice" inputmode="decimal" value="${esc(i.packPrice)}" placeholder="0" aria-label="Цена упаковки">
+      <input class="iprice" data-f="packPrice" inputmode="decimal" value="${esc(i.packPrice)}" placeholder="0" aria-label="Цена упаковки, ₽">
       <span class="pk">${ingPk(i)}</span>
-      <button class="x" data-ing="${i.id}" title="Подробнее / удалить">⋯</button>
-      <div class="imeta">${u?`в ${u} рецепт${u===1?'е':'ах'}`:'не используется'}${d?` · цена от ${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)}`:''}</div>
-    </div>`}).join('')+(q&&!list.length?'<p class="empty-note">Ничего не нашла</p>':'')
-    :'<p class="empty-note">Добавьте продукты, которые покупаете</p>';
+      <button class="x" data-ing="${i.id}" title="Категория, вес 1 шт, история, удаление">⋯</button>
+      <div class="imeta">${ingMeta(i)}</div>
+    </div>`).join('')).join('')+(!list.length?'<p class="empty-note">Ничего не нашлось</p>':'')
+    :'<p class="empty-note">Добавьте продукты, которые покупаете, или загрузите пример</p>';
+  renderPriceSummary(ings,stale);
+}
+function renderPriceSummary(ings,stale){
+  const recs=[...S.recipes].sort((a,b)=>a.name.localeCompare(b.name));
+  $('#recCostMini').innerHTML=recs.length?`<table><tbody>${recs.map(r=>`<tr class="click" data-rec="${r.id}"><td>${esc(r.name)}</td><td class="num"><b>${rub(recCost(r))}</b></td><td class="num mute">${rub(recPerG(r)*1000)}/кг</td></tr>`).join('')}</tbody></table>`:'<p class="empty-note">Рецептов пока нет</p>';
+  $('#priceStat').innerHTML=ings.length?`${ings.length} продуктов${stale.length?` · <span class="stale">${stale.length} давно не проверялись</span>`:' · все цены свежие ✓'}`:'';
 }
 function readIngRow(row){const i=ingById(row.dataset.iid);if(!i)return null;const o={...clone(i)};row.querySelectorAll('[data-f]').forEach(e=>o[e.dataset.f]=e.value);return o}
 $('#ingSearch').addEventListener('input',()=>renderLib());
+$('#priceChips').addEventListener('click',e=>{const b=e.target.closest('[data-pf]');if(!b)return;priceFilter=b.dataset.pf;renderLib()});
 $('#ingList').addEventListener('input',e=>{const row=e.target.closest('.ir[data-iid]');if(!row)return;const o=readIngRow(row);if(o)row.querySelector('.pk').innerHTML=ingPk(o)});
 $('#ingList').addEventListener('change',e=>{const row=e.target.closest('.ir[data-iid]');if(!row)return;const o=readIngRow(row),old=ingById(row.dataset.iid);if(!o)return;
   if(!o.name.trim()){toast('Название не может быть пустым');e.target.value=old.name;return}
-  if(o.packPrice!==old.packPrice||o.packSize!==old.packSize||o.unit!==old.unit)o.priceTs=Date.now();
-  saveIngInline(o);const u=ingUsage(o.id);toast(u?`Сохранено, пересчитано рецептов: ${u}`:'Сохранено')});
+  const priceChanged=o.packPrice!==old.packPrice||o.packSize!==old.packSize||o.unit!==old.unit;
+  if(priceChanged){if(num(old.packPrice)>0)o.history=[...(old.history||[]),{ts:old.priceTs||old._ts||Date.now(),price:old.packPrice,size:old.packSize}].slice(-12);o.priceTs=Date.now()}
+  // как изменилась себестоимость рецептов
+  const affected=S.recipes.filter(r=>(r.items||[]).some(x=>x.ing===o.id)),before=affected.map(recCost);
+  saveIngInline(o);
+  if(priceChanged&&affected.length){const lines=affected.map((r,k)=>{const a=before[k],b=recCost(r),d=b-a;return `<div>${esc(r.name)}: ${rub(a)} → <b>${rub(b)}</b> <span class="${d>0?'pup':d<0?'pdown':''}">${d>0?'+':''}${rub(d)}</span></div>`}).join('');
+    $('#priceImpact').innerHTML=`<div class="impact"><b>${esc(o.name)}</b>: себестоимость рецептов изменилась${lines}<button class="x" data-act="hideImpact" style="position:absolute;top:4px;right:6px">×</button></div>`;toast('Цена сохранена, рецепты пересчитаны')}
+  else toast('Сохранено')});
 // сохранение из таблицы без перерисовки самой таблицы (чтобы не сбивать ввод)
 async function saveIngInline(o){o=clone(o);o._ts=Date.now();const i=S.ingredients.findIndex(x=>x.id===o.id);if(i>=0)S.ingredients[i]=o;else S.ingredients.push(o);
-  const row=$('#ingList').querySelector(`.ir[data-iid="${o.id}"]`);if(row){row.querySelector('.pk').innerHTML=ingPk(o);const m=row.querySelector('.imeta');const u=ingUsage(o.id),d=o.priceTs?new Date(o.priceTs):null;if(m)m.textContent=(u?`в ${u} рецепт${u===1?'е':'ах'}`:'не используется')+(d?` · цена от ${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)}`:'')}
-  renderRecList();computeCalc();computeScale();
+  const row=$('#ingList').querySelector(`.ir[data-iid="${o.id}"]`);if(row){row.querySelector('.pk').innerHTML=ingPk(o);const m=row.querySelector('.imeta');if(m)m.innerHTML=ingMeta(o)}
+  renderRecList();renderPriceSummary(S.ingredients,S.ingredients.filter(i=>!i.priceTs||Date.now()-i.priceTs>STALE_DAYS*864e5));computeCalc();computeScale();
   if(DB){try{await DB.collection('ingredients').doc(o.id).set(o)}catch(e){dbErr(e)}}else localChanged()}
 $('#ingList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();const all=[...$('#ingList').querySelectorAll('input')];const n=all[all.indexOf(e.target)+1];if(n)n.focus();else e.target.blur()}});
-function addIngRow(){const id=uid();put('ingredients',{id,name:'Новый продукт',unit:'г',packSize:'',packPrice:'',pieceG:'',priceTs:Date.now()});
-  if($('#ingSearch'))$('#ingSearch').value='';renderLib();const inp=document.querySelector(`.ir[data-iid="${id}"] .iname`);if(inp){inp.scrollIntoView({block:'center'});inp.focus();inp.select()}}
+function addIngRow(){const id=uid();const cat=CATS[priceFilter]?priceFilter:'other';put('ingredients',{id,name:'Новый продукт',cat,unit:'г',packSize:'',packPrice:'',pieceG:'',priceTs:Date.now()});
+  if($('#ingSearch'))$('#ingSearch').value='';if(priceFilter==='stale')priceFilter='all';renderLib();const inp=document.querySelector(`.ir[data-iid="${id}"] .iname`);if(inp){inp.scrollIntoView({block:'center'});inp.focus();inp.select()}}
 function renderRecList(){
   const recs=[...S.recipes].sort((a,b)=>(a.type||'').localeCompare(b.type||'')||a.name.localeCompare(b.name));
   $('#recList').innerHTML=recs.length?recs.map(r=>`<div class="rc" data-rec="${r.id}"><div style="flex:1"><div class="nm">${esc(r.name)}</div><div class="mute" style="font-size:12.5px">${esc(REC_TYPES[r.type]||'')} · выход ${fx(recYield(r),0)} г${r.formD?' · форма Ø'+esc(r.formD):''}</div></div><div class="num"><b>${rub(recCost(r))}</b><div class="mute" style="font-size:12px">${rub(recPerG(r)*1000)} / кг</div></div></div>`).join(''):'<p class="empty-note">Рецептов пока нет</p>';
@@ -804,18 +869,20 @@ function renderLib(){
   const ings=[...S.ingredients].sort((a,b)=>a.name.localeCompare(b.name));
   renderIngTable(ings);
   renderRecList();
-  $('#libEmpty').innerHTML=(!S.ingredients.length&&!S.recipes.length)?`<div class="card" style="margin-bottom:14px;background:var(--mint-l)"><div class="row"><div style="flex:1"><b>С чего начать?</b> Можно загрузить примерный набор: 12 продуктов и 5 базовых рецептов (ванильный и шоколадный бисквит, крем-чиз, ганаш, пропитка). Цены примерные, их легко заменить на свои.</div><button class="primary" data-act="sample">Загрузить пример</button></div></div>`:'';
+  $('#priceEmpty').innerHTML=$('#libEmpty').innerHTML=(!S.ingredients.length&&!S.recipes.length)?`<div class="card" style="margin-bottom:14px;background:var(--mint-l)"><div class="row"><div style="flex:1"><b>С чего начать?</b> Можно загрузить примерный набор: 12 продуктов и 5 базовых рецептов (ванильный и шоколадный бисквит, крем-чиз, ганаш, пропитка). Цены примерные, их легко заменить на свои.</div><button class="primary" data-act="sample">Загрузить пример</button></div></div>`:'';
 }
 function openIng(i){
   const isNew=!i;i=i?clone(i):{id:uid(),name:'',unit:'г',packSize:'',packPrice:'',pieceG:''};
   modal(`<h3>${isNew?'Новый продукт':esc(i.name)}</h3>
   <form id="if" class="grid2" autocomplete="off">
     <label class="full">Название *<input name="name" required value="${esc(i.name)}" placeholder="Сливки 33%"></label>
+    <label>Категория<select name="cat">${Object.entries(CATS).map(([k,t])=>`<option value="${k}"${k===catOf(i)?' selected':''}>${t}</option>`).join('')}</select></label>
     <label>Единица<select name="unit">${['г','мл','шт'].map(u=>`<option${u===i.unit?' selected':''}>${u}</option>`).join('')}</select></label>
     <label>В упаковке<input name="packSize" required inputmode="decimal" value="${esc(i.packSize)}" placeholder="500"></label>
     <label>Цена упаковки, ₽<input name="packPrice" required inputmode="decimal" value="${esc(i.packPrice)}" placeholder="380"></label>
     <label id="pgL">Вес 1 шт, г (для выхода)<input name="pieceG" inputmode="decimal" value="${esc(i.pieceG)}" placeholder="50"></label>
     <div class="full hint on" id="ipr"></div>
+    ${(i.history||[]).length?`<div class="full"><div style="font-weight:800;font-size:13px;margin:4px 0">📈 История цен</div><table><tbody>${[...i.history].reverse().map(h=>{const d=new Date(h.ts);return `<tr><td class="mute">${d.getDate()} ${MON_G[d.getMonth()].slice(0,3)} ${d.getFullYear()}</td><td class="num">${fx(num(h.size))} ${esc(i.unit)}</td><td class="num">${rub(num(h.price))}</td></tr>`}).join('')}</tbody></table></div>`:''}
     <div class="full btns">${!isNew?'<button type="button" class="danger" id="iDel">Удалить</button>':''}<span class="sp"></span><button type="button" class="ghost" data-act="close">Отмена</button><button class="primary">Сохранить</button></div>
   </form>`);
   const f=$('#if');const upd=()=>{const t={unit:f.unit.value,packSize:f.packSize.value,packPrice:f.packPrice.value};const p=unitPrice(t);$('#pgL').style.display=t.unit==='шт'?'':'none';$('#ipr').textContent=p?`Цена: ${fx(p,3)} ₽ за 1 ${t.unit}`+(t.unit!=='шт'?` · ${rub(p*1000)} за ${t.unit==='мл'?'литр':'кг'}`:''):'Введите размер упаковки и цену'};
@@ -836,7 +903,7 @@ function openRec(r){
       <label class="full">Выход готового, г <span style="font-weight:600">(пусто = сумма ингредиентов; лучше взвесить)</span><input name="yield" inputmode="decimal" value="${esc(r.yield)}"></label>
     </div>
     <h3>Ингредиенты</h3>
-    ${ings.length?'':'<div class="warnline">Сначала добавьте продукты слева, во вкладке «Рецепты и продукты».</div>'}
+    ${ings.length?'':'<div class="warnline">Сначала добавьте продукты во вкладке «🛒 Продукты».</div>'}
     <div id="ri"></div>
     <button type="button" class="btn mini" id="riAdd">+ ингредиент</button>
     <label style="margin-top:10px">Технология / заметки<textarea name="note" rows="3">${esc(r.note||'')}</textarea></label>
@@ -857,7 +924,7 @@ function openRec(r){
 }
 async function loadSample(){
   const I=[['i-flour','Мука пшеничная в/с','г',1000,95],['i-sugar','Сахар','г',1000,95],['i-powder','Сахарная пудра','г',500,140],['i-egg','Яйцо С0','шт',10,135,55],['i-butter','Масло сливочное 82%','г',180,230],['i-cream','Сливки 33%','мл',500,390],['i-cheese','Сыр творожный сливочный','г',500,430],['i-cocoa','Какао-порошок алкализованный','г',100,170],['i-choc','Шоколад тёмный 70%','г',100,190],['i-bp','Разрыхлитель','г',10,15],['i-milk','Молоко 3,2%','мл',930,100],['i-van','Ванильный сахар','г',8,15]];
-  for(const[id,name,unit,packSize,packPrice,pieceG]of I){if(!ingById(id))await put('ingredients',{id,name,unit,packSize,packPrice,pieceG:pieceG||''})}
+  for(const[id,name,unit,packSize,packPrice,pieceG]of I){if(!ingById(id))await put('ingredients',{id,name,unit,packSize,packPrice,pieceG:pieceG||'',priceTs:Date.now()})}
   const R=[
     {id:'r-vanbis',name:'Ванильный бисквит',type:'biscuit',formD:20,yield:600,items:[{ing:'i-egg',qty:6},{ing:'i-sugar',qty:180},{ing:'i-flour',qty:180},{ing:'i-bp',qty:5},{ing:'i-van',qty:8}],note:'Яйца взбить с сахаром 8–10 мин, вмешать муку с разрыхлителем. 170 °C, 35–40 мин.'},
     {id:'r-chocbis',name:'Шоколадный бисквит',type:'biscuit',formD:20,yield:560,items:[{ing:'i-egg',qty:5},{ing:'i-sugar',qty:160},{ing:'i-flour',qty:120},{ing:'i-cocoa',qty:40},{ing:'i-bp',qty:5},{ing:'i-milk',qty:60}],note:''},
@@ -925,7 +992,7 @@ function ensureComps(){
 function renderComps(){
   const recs=[...S.recipes].sort((a,b)=>a.name.localeCompare(b.name));
   $('#comps').innerHTML=calc.comps.map((c,k)=>`<div class="comp"><select data-c="${k}" data-f="rid"><option value="">— выберите —</option>${recs.map(r=>`<option value="${r.id}"${r.id===c.rid?' selected':''}>${esc(r.name)}</option>`).join('')}</select><input data-c="${k}" data-f="pct" inputmode="decimal" value="${c.pct}"><span class="v" id="cg${k}"></span><span class="v" id="cr${k}"></span><button class="x" data-delcomp="${k}">×</button></div>`).join('');
-  $('#calcEmpty').innerHTML=S.recipes.length?'':`<div class="warnline">Чтобы считать себестоимость, добавьте продукты и рецепты во вкладке «Рецепты и продукты» или загрузите пример. <button class="primary mini" data-act="sample">Загрузить пример</button></div>`;
+  $('#calcEmpty').innerHTML=S.recipes.length?'':`<div class="warnline">Чтобы считать себестоимость, добавьте продукты во вкладке «🛒 Продукты» и рецепты во вкладке «📖 Рецепты» или загрузите пример. <button class="primary mini" data-act="sample">Загрузить пример</button></div>`;
 }
 $('#comps').addEventListener('input',e=>{const k=e.target.dataset.c;if(k==null)return;calc.comps[k][e.target.dataset.f]=e.target.value;computeCalc()});
 $('#comps').addEventListener('click',e=>{const k=e.target.dataset.delcomp;if(k!=null){calc.comps.splice(+k,1);renderComps();computeCalc()}});
@@ -1105,6 +1172,7 @@ document.addEventListener('click',e=>{
   if(a==='newClient')return openClient(null);
   if(a==='importContacts')return importContacts();
   if(a==='newIng')return addIngRow();
+  if(a==='hideImpact'){$('#priceImpact').innerHTML='';return}
   if(a==='newRec')return openRec(null);
   if(a==='sample')return loadSample();
   if(a==='settings')return openSettings();
