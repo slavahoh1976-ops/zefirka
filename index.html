@@ -324,6 +324,20 @@ header{padding-top:env(safe-area-inset-top)}
 .mback{border:0;background:transparent;color:var(--pink-d);font-weight:800;font-size:16px;padding:8px 10px;cursor:pointer;border-radius:10px}
 .mback:hover{background:var(--pink-l)}
 @media (max-width:620px){.mtop{top:0;margin:calc(-16px - env(safe-area-inset-top)) -16px 8px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;border-radius:0}.mback{font-size:17px}}
+
+#topFill,#recCostMini,#expList{overflow-x:auto}
+.tel{color:var(--pink-d);text-decoration:none;font-weight:700}
+.paybtn{border:1px solid var(--mint);background:var(--mint-l);color:#2f7d69;border-radius:9px;padding:3px 9px;font-weight:800;font-size:12.5px;cursor:pointer;margin-left:4px}
+@media (max-width:620px){
+  .mini{min-height:40px}
+  .nav-b{width:42px;height:42px}
+  .oc select{min-height:38px;font-size:14px;padding:6px 8px}
+  .ir .x,.exr .x{min-width:40px;min-height:40px}
+  .chipb{min-height:38px;padding:7px 13px}
+  .paybtn{padding:7px 11px}
+  .oc-top{flex-wrap:wrap}.oc-top b{flex:1 1 60%}.oc-top select{order:3;width:100%;margin-top:4px}
+  #topFill th:nth-child(4),#topFill td:nth-child(4){display:none}
+}
 </style>
 </head>
 <body>
@@ -589,7 +603,7 @@ header{padding-top:env(safe-area-inset-top)}
 <input type="file" id="vcfIn" accept=".vcf,text/vcard,text/x-vcard" multiple style="display:none">
 
 <script>
-const APP_VERSION='2.0 · 16.11.2026';
+const APP_VERSION='2.1 · 16.11.2026';
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -784,7 +798,7 @@ function renderCal(){
   const pref=cal.y+'-'+pad(cal.m+1),mo=S.orders.filter(o=>(o.date||'').startsWith(pref)&&o.status!=='cancel');
   const rest=sum(mo.filter(o=>o.status!=='done'),o=>Math.max(0,num(o.price)-num(o.deposit)));
   const prof=sum(mo.filter(o=>num(o.cost)>0),o=>num(o.price)-num(o.cost));
-  $('#stats').innerHTML=stat('Заказов в '+monthPrep(cal.m),mo.length)+stat('Выручка',rub(sum(mo,o=>num(o.price))))+stat('Ждём доплат',rub(rest))+stat('Прибыль <small title="по заказам, где указана себестоимость">ⓘ</small>',rub(prof))+stat('Килограммов',fx(sum(mo,o=>num(o.weight))));
+  $('#stats').innerHTML=stat('Заказов в '+monthPrep(cal.m),mo.length)+stat('Выручка',rub(sum(mo,o=>num(o.price))))+stat('Ждём доплат',rub(rest))+stat('Прибыль (расчёт) <small title="цена минус себестоимость из калькулятора; реальная прибыль с учётом чеков во вкладке «Отчёт»">ⓘ</small>',rub(prof))+stat('Килограммов',fx(sum(mo,o=>num(o.weight))));
 }
 function monthPrep(m){return ['январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре'][m]}
 function orderCard(o){
@@ -792,12 +806,12 @@ function orderCard(o){
   return `<div class="oc" style="--c:${s.c}">
     <div class="oc-top"><span class="time">${esc(o.time||'—')}</span><b>${esc(o.title||'Заказ')}</b>
       <select data-status="${o.id}">${STATUSES.map(x=>`<option value="${x.k}"${x.k===o.status?' selected':''}>${x.t}</option>`).join('')}</select></div>
-    <div class="ln">👩 ${esc(o.clientName||'')} · <span class="mute">${esc(fmtPhone(o.clientPhone))}</span></div>
+    <div class="ln">👩 ${esc(o.clientName||'')} · <a class="tel" href="tel:+${esc(o.clientPhone)}">${esc(fmtPhone(o.clientPhone))}</a></div>
     ${(o.weight||o.filling)?`<div class="ln">${o.weight?'⚖️ '+fx(num(o.weight),2)+' кг':''}${o.weight&&o.filling?' · ':''}${o.filling?'🍓 '+esc(o.filling):''}</div>`:''}
     ${o.decor?`<div class="ln mute">🎀 ${esc(o.decor)}</div>`:''}
     ${o.notes?`<div class="ln mute">📝 ${esc(o.notes)}</div>`:''}
     <div class="ln">${o.delivery==='delivery'?'🚗 Доставка'+(o.address?': '+esc(o.address):''):'🏠 Самовывоз'}</div>
-    ${num(o.price)?`<div class="money">Цена <b>${rub(num(o.price))}</b> · предоплата ${rub(num(o.deposit))} · ${rest>0?`<span class="rest">остаток ${rub(rest)}</span>`:'<span class="paid">оплачено</span>'}</div>`:''}
+    ${num(o.price)?`<div class="money">Цена <b>${rub(num(o.price))}</b> · предоплата ${rub(num(o.deposit))} · ${rest>0?`<span class="rest">остаток ${rub(rest)}</span> <button class="paybtn" data-paid="${o.id}">✓ Оплачен</button>`:'<span class="paid">оплачено ✓</span>'}</div>`:''}
     ${(o.photos||[]).length?`<div class="ocph">${o.photos.slice(0,5).map(p=>`<img data-ph="${p.id}" data-view="${p.id}" alt="">`).join('')}</div>`:''}
     <div class="oc-btns"><button class="btn mini" data-edit="${o.id}">✏️ Изменить</button><button class="btn mini" data-ics="${o.id}">📅 В календарь</button><button class="btn mini" data-msg="${o.id}">💬 Текст клиенту</button></div>
   </div>`;
@@ -999,7 +1013,7 @@ function addIngRow(){const id=uid();const cat=CATS[priceFilter]?priceFilter:'oth
   if($('#ingSearch'))$('#ingSearch').value='';if(priceFilter==='stale')priceFilter='all';renderLib();const inp=document.querySelector(`.ir[data-iid="${id}"] .iname`);if(inp){inp.scrollIntoView({block:'center'});inp.focus();inp.select()}}
 function renderRecList(){
   const recs=[...S.recipes].sort((a,b)=>(a.type||'').localeCompare(b.type||'')||a.name.localeCompare(b.name));
-  $('#recList').innerHTML=recs.length?recs.map(r=>`<div class="rc" data-rec="${r.id}"><div style="flex:1"><div class="nm">${esc(r.name)}</div><div class="mute" style="font-size:12.5px">${esc(REC_TYPES[r.type]||'')} · выход ${fx(recYield(r),0)} г${r.formD?' · форма Ø'+esc(r.formD):''}</div></div><div class="num"><b>${rub(recCost(r))}</b><div class="mute" style="font-size:12px">${rub(recPerG(r)*1000)} / кг</div></div></div>`).join(''):'<p class="empty-note">Рецептов пока нет</p>';
+  $('#recList').innerHTML=recs.length?recs.map(r=>`<div class="rc" data-rec="${r.id}"><div style="flex:1"><div class="nm">${esc(r.name)}${(r.items||[]).some(x=>!ingById(x.ing))?' <span class="badge" style="background:var(--warn-l);color:#9a6312" title="В рецепте есть удалённый продукт, себестоимость занижена">⚠️ нет продукта</span>':''}</div><div class="mute" style="font-size:12.5px">${esc(REC_TYPES[r.type]||'')} · выход ${fx(recYield(r),0)} г${r.formD?' · форма Ø'+esc(r.formD):''}</div></div><div class="num"><b>${rub(recCost(r))}</b><div class="mute" style="font-size:12px">${rub(recPerG(r)*1000)} / кг</div></div></div>`).join(''):'<p class="empty-note">Рецептов пока нет</p>';
 }
 function renderLib(){
   const ings=[...S.ingredients].sort((a,b)=>a.name.localeCompare(b.name));
@@ -1519,8 +1533,9 @@ $('#exf').addEventListener('submit',e=>{e.preventDefault();const cat=$('#exCat')
 $('#libSeg').addEventListener('click',e=>{const b=e.target.closest('[data-ls]');if(!b)return;document.querySelectorAll('#libSeg button').forEach(x=>x.classList.toggle('on',x===b));$('#lsRec').style.display=b.dataset.ls==='rec'?'':'none';$('#lsMenu').style.display=b.dataset.ls==='menu'?'':'none';if(b.dataset.ls==='menu')renderMenuEditor()});
 $('#shopForm').addEventListener('change',e=>{if(e.target.id&&e.target.id.startsWith('sh_'))saveShopField(e)});
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-ics],[data-delexp],[data-menu],[data-tab-go]');if(!t)return;
-  if(t.dataset.ics){const o=S.orders.find(x=>x.id===t.dataset.ics);if(o)saveIcs([o],'zakaz-'+o.date+'.ics')}
+  const t=e.target.closest('[data-paid],[data-ics],[data-delexp],[data-menu],[data-tab-go]');if(!t)return;
+  if(t.dataset.paid){const o=S.orders.find(x=>x.id===t.dataset.paid);if(o){put('orders',{...o,deposit:o.price,paidAt:today()});toast('Отмечено: оплачен полностью')}}
+  else if(t.dataset.ics){const o=S.orders.find(x=>x.id===t.dataset.ics);if(o)saveIcs([o],'zakaz-'+o.date+'.ics')}
   else if(t.dataset.delexp){confirmBox('Удалить расход?',()=>remove('expenses',t.dataset.delexp))}
   else if(t.dataset.menu){const m=S.menu.find(x=>x.id===t.dataset.menu);if(m)openMenuItem(m)}
   else if(t.dataset.tabGo)showTab(t.dataset.tabGo,true);
